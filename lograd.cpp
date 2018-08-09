@@ -1,6 +1,30 @@
 // lograd.cpp
 // g++ -std=c++11 -o lograd lograd.cpp cell.cpp pin.cpp circuit.cpp lgc.cpp numeric.cpp -lm
 
+//s0.f    1                 s0.f    1
+//c3.f    -1                c3.f    -1
+//c2.f    1                 c2.f    1
+//c1.f    1                 c1.f    1
+//c0.f    -1                c0.f    -1
+//a0.x    1                 a0.x    1
+//a0.f    0.652443          a0.f    0.5
+//s1.f    0                 s1.f    0
+//m1.s    1                 m1.s    0.5
+//m1.x0    1                m1.x0    1
+//m1.x1    1                m1.x1    -1
+//m1.f    0.30073           m1.f    -0.5
+//m0.s    1                 m0.s    0.5
+//m0.x0    1                m0.x0    -1
+//m0.x1    1                m0.x1    1
+//m0.f    0.902785          m0.f    0.5
+//a1.x    1                 a1.x    0
+//a1.f    0.450554          a1.f    0
+//m2.s    1                 m2.s    0
+//m2.x0    1                m2.x0    0.5
+//m2.x1    1                m2.x1    -0.5
+//m2.f    0.142496          m2.f    0
+
+
 #include "lograd.h"
 #include "cell.h"
 #include "lgc.h"
@@ -151,6 +175,26 @@ void dev_prompt(void){
 
             case 8:
                 cout << "circuit loss: " << circ->get_circuit_loss() << endl;
+                break;
+
+            case 9:
+                circ->do_forward_pass();
+                break;
+
+            case 10:
+                circ->update_loss();
+                break;
+
+            case 11:
+                circ->do_backward_pass();
+                break;
+
+            case 12:
+                circ->update_vars();
+                break;
+
+            case 13:
+                circ->reset_iteration();
                 break;
 
 //            case 4:

@@ -726,7 +726,7 @@ void circuit::show_pin_values(void){
     pin* p;
     for(int i=0;i<pin_list_size;i++){
         p = (*pin_list)[i];
-        cout << p->get_circ_name() << "    " << p->get_value() << endl;
+        cout << p->get_circ_name() << "    " << p->read_value() << endl;
     }
 }
 
@@ -748,7 +748,7 @@ void circuit::show_input_vars(void){
     for(int i=0;i<num_input_cells;i++){
         c = (*input_cells)[i];
         op = c->get_f_pin();
-        cout << op->get_circ_name() << "    " << op->get_value() << endl;
+        cout << op->get_circ_name() << "    " << op->read_value() << endl;
     }
 
 }

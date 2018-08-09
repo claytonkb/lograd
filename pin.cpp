@@ -87,6 +87,10 @@ void pin::reset_pin_visited(void){
     visited_bwd = false;
 }
 
+float pin::read_value(void){
+    return value;
+}
+
 
 
                     //////////////////////////////
@@ -134,16 +138,22 @@ void output_pin::source_value(void){
 
 float output_pin::get_value(void){
 
-    float result;
+//    float result;
+//
+//    if(dynamic_pin==false){
+//        result = value;
+//    }
+//    else{ // dynamic_pin==true
+//        result = acme_rand(init);
+//    }
+//
+//    return result;
 
-    if(dynamic_pin==false){
-        result = value;
-    }
-    else{ // dynamic_pin==true
-        result = acme_rand(init);
+    if(dynamic_pin==true){
+        value = acme_rand(init);
     }
 
-    return result;
+    return value;
 
 }
 
@@ -267,6 +277,7 @@ void input_pin::backward_update(void){
 void input_pin::set_incoming_loss_gradient(float x){
     incoming_loss_gradient = x;
 }
+
 
 // Clayton Bauman 2018
 

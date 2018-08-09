@@ -25,6 +25,7 @@ class pin{
 
         void            init_value(pin_init pi);
         virtual float   get_value(void);
+        float           read_value(void); // XXX Use for diplaying state
         void            set_value(float x);
 
         float           get_loss_gradient(void);
@@ -77,7 +78,7 @@ class output_pin : public pin{
                         output_pin(pin_init pi, bool dynamic);
                        ~output_pin()=default;
         void            source_value(void);         // push value to connected pins
-        float           get_value(void);            // overrides the base class method
+        float           get_value(void);
         void            sink_loss_gradient(void);   // pull loss_grad from connected pins
         void            add_connection_to_pin(input_pin* pin);
         void            forward_update(void);

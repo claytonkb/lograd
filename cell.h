@@ -25,6 +25,9 @@ class cell{
                         cell(string name);
         virtual        ~cell();
 
+        virtual void    forward_propagate(void);
+        virtual void    backward_propagate(void);
+
         void            reset_visited(void);
         void            set_visited_fwd(void);
         void            set_visited_bwd(void);
@@ -41,12 +44,6 @@ class cell{
         bool            is_visited_fwd(void);
         bool            is_visited_bwd(void);
 
-        virtual void    forward_propagate(void);
-        virtual void    backward_propagate(void);
-
-//        void    forward_propagate(void);
-//        void    backward_propagate(void);
-
         float           get_loss_gradient(void);
 
     protected:
@@ -61,35 +58,6 @@ class cell{
 
 };
 
-
-                    //////////////////////////////
-                    //       SOFT MUX CELL      //
-                    //////////////////////////////
-
-class soft_mux_cell : public cell{
-
-    public:
-                        soft_mux_cell(string name) : cell(name) {
-                            type=SOFT_MUX_CELL;
-                        };
-                       ~soft_mux_cell()=default;
-        input_pin*      get_s_pin(void);
-        void            set_s_pin(input_pin* s_pin);
-        input_pin*      get_x0_pin(void);
-        void            set_x0_pin(input_pin* x_pin);
-        input_pin*      get_x1_pin(void);
-        void            set_x1_pin(input_pin* x_pin);
-        void            forward_propagate(void);
-        void            backward_propagate(void);
-//        void forward_update(void);
-//        void backward_update(void);
-
-    private:
-        input_pin*  s;
-        input_pin*  x0;
-        input_pin*  x1;
-
-};
 
 
                     //////////////////////////////
@@ -182,6 +150,35 @@ class act_cell : public cell{
 
 
                     //////////////////////////////
+                    //       SOFT MUX CELL      //
+                    //////////////////////////////
+
+class soft_mux_cell : public cell{
+
+    public:
+                        soft_mux_cell(string name) : cell(name) {
+                            type=SOFT_MUX_CELL;
+                        };
+                       ~soft_mux_cell()=default;
+        input_pin*      get_s_pin(void);
+        void            set_s_pin(input_pin* s_pin);
+        input_pin*      get_x0_pin(void);
+        void            set_x0_pin(input_pin* x_pin);
+        input_pin*      get_x1_pin(void);
+        void            set_x1_pin(input_pin* x_pin);
+        void            forward_propagate(void);
+        void            backward_propagate(void);
+
+    private:
+        input_pin*  s;
+        input_pin*  x0;
+        input_pin*  x1;
+
+};
+
+
+
+                    //////////////////////////////
                     //         LOSS CELL        //
                     //////////////////////////////
 
@@ -197,7 +194,6 @@ class loss_cell : public cell{
                         };
                        ~loss_cell()=default;
         void            connect_x(output_pin* pin, float target);
-//        void            source_loss(void);
         float           get_total_loss(void);
         void            calculate_total_loss(void);
         void            forward_propagate(void);
