@@ -18,55 +18,7 @@ pin::pin(){
 
 void pin::init_value(pin_init pi){
 
-    switch(pi){
-        case INIT_ONE:
-            value = 1.0f;
-            break;
-        case INIT_ZERO:
-            value = 0.0f;
-            break;
-        case INIT_NEG_ONE:
-            value = -1.0f;
-            break;
-        case INIT_HALF:
-            value = 0.5f;
-            break;
-        case INIT_HI:
-            value = logistic(rand_range(0,6));
-            break;
-        case INIT_LO:
-            value = logistic(rand_range(-6,0));
-            break;
-        case INIT_RAND01:
-            value = logistic(rand_range(-3,3));
-            break;
-        case INIT_RAND11:
-            value = soft_sign(rand_range(-3,3));//(2*logistic(rand_range(-3,3)))-1;
-            break;
-        case INIT_RAND:
-            value = rand_range(-3,3);
-            break;
-        case INIT_HI1:
-            value = logistic(rand_range(0,6));
-            break;
-        case INIT_LO1:
-            value = logistic(rand_range(-6,0));
-            break;
-        case INIT_RAND1:
-            value = logistic(rand_range(-3,3));
-            break;
-        case INIT_HI2:
-            value = soft_sign(rand_range(0,6));
-            break;
-        case INIT_LO2:
-            value = soft_sign(rand_range(-6,0));
-            break;
-        case INIT_RAND2:
-            value = -17;//soft_sign(rand_range(-3,3));
-            break;
-        default:
-            value = 0.5f;
-    }
+    value = acme_rand(pi);
 
 }
 
@@ -143,7 +95,7 @@ void pin::reset_pin_visited(void){
 
 output_pin::output_pin(){
     connections = new vector<input_pin*>;
-    randomize_pin=false;
+    dynamic_pin=false;
     init=INIT_RAND;
     type=OUTPUT_PIN;
 }
@@ -151,14 +103,14 @@ output_pin::output_pin(){
 output_pin::output_pin(pin_init pi){
     init_value(pi);
     connections = new vector<input_pin*>;
-    randomize_pin=false;
+    dynamic_pin=false;
     init=pi;
     type=OUTPUT_PIN;
 }
 
-output_pin::output_pin(pin_init pi, bool randomize=false){
+output_pin::output_pin(pin_init pi, bool dynamic=false){
     connections = new vector<input_pin*>;
-    randomize_pin=randomize;
+    dynamic_pin=dynamic;
     init=pi;
     type=OUTPUT_PIN;
 }
@@ -169,12 +121,12 @@ void output_pin::source_value(void){
 
     int num_connections = connections->size();
 
-    if(randomize_pin==false){
+    if(dynamic_pin==false){
         for(int i=0; i<num_connections; i++){
             (*connections)[i]->set_value(this->value);
         }
     }
-    else{ //randomize_pin==true 
+    else{ //dynamic_pin==true 
         _say("unimplemented");
     }
 
@@ -184,38 +136,11 @@ float output_pin::get_value(void){
 
     float result;
 
-    if(randomize_pin==false){
-        return value;
+    if(dynamic_pin==false){
+        result = value;
     }
-    else{ // randomize_pin==true
-        switch(init){
-            case INIT_ONE:
-                result = 1.0f;
-                break;
-            case INIT_ZERO:
-                result = 0.0f;
-                break;
-            case INIT_HALF:
-                result = 0.5f;
-                break;
-            case INIT_HI:
-                result = logistic(rand_range(0,6));
-                break;
-            case INIT_LO:
-                result = logistic(rand_range(-6,0));
-                break;
-            case INIT_RAND01:
-                result = logistic(rand_range(-3,3));
-                break;
-            case INIT_RAND11:
-                value = (2*logistic(rand_range(-3,3)))-1;
-                break;
-            case INIT_RAND:
-                result = rand_range(-3,3);
-                break;
-            default:
-                result = 0.5f;
-        }
+    else{ // dynamic_pin==true
+        result = acme_rand(init);
     }
 
     return result;

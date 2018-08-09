@@ -69,7 +69,9 @@ class cell{
 class soft_mux_cell : public cell{
 
     public:
-                        soft_mux_cell(string name) : cell(name) {};
+                        soft_mux_cell(string name) : cell(name) {
+                            type=SOFT_MUX_CELL;
+                        };
                        ~soft_mux_cell()=default;
         input_pin*      get_s_pin(void);
         void            set_s_pin(input_pin* s_pin);
@@ -97,7 +99,9 @@ class soft_mux_cell : public cell{
 class const_cell : public cell{
 
     public:
-                        const_cell(string name) : cell(name) {};
+                        const_cell(string name) : cell(name) {
+                            type=CONST_CELL;
+                        };
                        ~const_cell()=default;
         void            set_const(float x);
         void            connect_f(input_pin* pin);
@@ -115,7 +119,9 @@ class const_cell : public cell{
 class rand_cell : public cell{
 
     public:
-                        rand_cell(string name) : cell(name) {};
+                        rand_cell(string name) : cell(name) {
+                            type=RAND_CELL;
+                        };
                        ~rand_cell()=default;
         void            connect_f(input_pin* pin);
         void            forward_propagate(void);
@@ -133,7 +139,9 @@ class rand_cell : public cell{
 class var_cell : public cell{
 
     public:
-                        var_cell(string name) : cell(name) {};
+                        var_cell(string name) : cell(name) {
+                            type=VAR_CELL;
+                        };
                        ~var_cell()=default;
         void            set_var(float x);
         void            connect_f(input_pin* pin);
@@ -152,6 +160,7 @@ class act_cell : public cell{
 
     public:
                         act_cell(string name) : cell(name) {
+                            type=ACT_CELL;
                             act_fn = &soft_sign;
                         };
                        ~act_cell()=default;
@@ -180,6 +189,7 @@ class loss_cell : public cell{
 
     public:
                         loss_cell(string name) : cell(name) {
+                            type=LOSS_CELL;
                             total_loss = 0;
                             connections = new vector<loss_pin_target*>;
                             x = new input_pin;
@@ -193,6 +203,7 @@ class loss_cell : public cell{
         void            forward_propagate(void);
         void            backward_propagate(void);
         input_pin*      get_x_pin(void);
+        float           get_loss_gradient(void);
 
     private:
         float           total_loss;

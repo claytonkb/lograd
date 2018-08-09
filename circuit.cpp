@@ -132,13 +132,22 @@ void circuit::update_loss(void){
 
 void circuit::update_vars(void){
 
-    int num_input_cells = input_cells->size();
-    int i;
+    int num_var_cells = variables->size();
 
-    for(i=0;i<num_input_cells;i++){
-        if((*input_cells)[i]->get_type() == VAR_CELL){
-            ((var_cell*)((*input_cells)[i]))->update_var();
-        }
+//    output_pin* op;
+//    var_cell* curr_var;
+
+    for(int i=0;i<num_var_cells;i++){
+
+        (*variables)[i]->update_var();
+
+//        curr_var = (*variables)[i];
+//        op = curr_var->get_f_pin();
+//        cout << curr_var->get_type() << endl;
+
+//        if(curr_var->get_type() == VAR_CELL){
+//            curr_var->update_var();
+//        }
     }
 
 }
@@ -402,9 +411,6 @@ void circuit::init_circ_map(string_vector* lgc){
                 fprintf(stderr,"LOGRAD: Unknown initializer, defaulting to RAND11: %s\n", (*lgc)[i+1].c_str());
                 f = new output_pin(INIT_RAND01);
             }
-
-
-
 
             f->set_this_cell(rc);
             f->set_circ_name((*lgc)[i]+f_pin);
@@ -703,14 +709,6 @@ void circuit::init_pin_list(void){//(string_map* circ_map){
 
     }
 
-    // List pin values:
-//    int pin_list_size = pin_list->size();
-//    pin* p;
-//    for(i=0;i<pin_list_size;i++){
-//        p = (*pin_list)[i];
-//        cout << p->get_circ_name() << "    " << p->get_value() << endl;
-//    }
-
 }
 
 
@@ -754,6 +752,12 @@ void circuit::show_input_vars(void){
     }
 
 }
+
+
+float circuit::get_circuit_loss(void){
+    return circuit_loss->get_total_loss();
+}
+
 
 
 // Clayton Bauman 2018

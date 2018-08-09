@@ -2,17 +2,17 @@
 .cel
 
 .var
-s0 r2
-s1 r2
+s0 1
+s1 0
 
 -- Note: initialization can be 0, 1 or r --
 
 -- constant cell declaration section --
 .con
-c0 0
+c0 -1
 c1 1
 c2 1
-c3 0
+c3 -1
 
 -- random cell declaration section --
 -- .ran --

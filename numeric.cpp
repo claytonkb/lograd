@@ -1,5 +1,6 @@
 // numeric.cpp
 
+#include "lograd.h"
 #include "numeric.h"
 #include <vector>
 
@@ -8,6 +9,65 @@
 //                              UTILITIES                                 //
 //                                                                        //
 ////////////////////////////////////////////////////////////////////////////
+
+float acme_rand(pin_init pi){
+
+    float result;
+
+    switch(pi){
+        case INIT_ONE:
+            result = 1.0f;
+            break;
+        case INIT_ZERO:
+            result = 0.0f;
+            break;
+        case INIT_NEG_ONE:
+            result = -1.0f;
+            break;
+        case INIT_HALF:
+            result = 0.5f;
+            break;
+        case INIT_HI:
+            result = logistic(rand_range(0,6));
+            break;
+        case INIT_LO:
+            result = logistic(rand_range(-6,0));
+            break;
+        case INIT_RAND01:
+            result = logistic(rand_range(-3,3));
+            break;
+        case INIT_RAND11:
+            result = soft_sign(rand_range(-3,3));
+            break;
+        case INIT_RAND:
+            result = rand_range(-3,3);
+            break;
+        case INIT_HI1:
+            result = logistic(rand_range(0,6));
+            break;
+        case INIT_LO1:
+            result = logistic(rand_range(-6,0));
+            break;
+        case INIT_RAND1:
+            result = logistic(rand_range(-3,3));
+            break;
+        case INIT_HI2:
+            result = soft_sign(rand_range(0,6));
+            break;
+        case INIT_LO2:
+            result = soft_sign(rand_range(-6,0));
+            break;
+        case INIT_RAND2:
+            result = soft_sign(rand_range(-3,3));
+            break;
+        default:
+            result = 0.12345678f; // like 0xdeadbeef
+    }
+
+    return result;
+
+}
+
 
 // uniform distribution random variable
 //

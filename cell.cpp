@@ -180,10 +180,15 @@ void var_cell::backward_propagate(void){
 }
 
 void var_cell::update_var(void){
+
     float f_pin_value = f->get_value();
     float f_pin_gradient = f->get_loss_gradient();
     float new_value = f_pin_value - f_pin_gradient;
     f->set_value(new_value);
+//_df(f_pin_value);
+//_df(f_pin_gradient);
+//_df(new_value);
+
 }
 
 
@@ -289,7 +294,7 @@ void loss_cell::calculate_total_loss(void){
     }
 
     total_loss = mean_sq_error(&diffs);
-_df(total_loss);
+//_df(total_loss);
     x->set_loss_gradient(total_loss);
 
 }
@@ -302,6 +307,9 @@ input_pin* loss_cell::get_x_pin(void){
     return x;
 }
 
+float loss_cell::get_loss_gradient(void){
+    return x->get_loss_gradient();
+}
 
 
 // Clayton Bauman 2018

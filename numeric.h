@@ -8,6 +8,8 @@
 
 using namespace std;
 
+float acme_rand(pin_init pi);
+
 float rand_range(float range_lo, float range_hi);
 double rand_normal(double mean, double stddev);
 

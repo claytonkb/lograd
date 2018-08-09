@@ -50,6 +50,8 @@ class circuit{
         void                show_pin_gradients(void);
         void                show_input_vars(void);
 
+        float               get_circuit_loss(void);
+
     private:
         direction           mode_select;  // switch between forward and reverse modes
 

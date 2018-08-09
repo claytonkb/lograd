@@ -74,7 +74,7 @@ class output_pin : public pin{
     public:
                         output_pin();
                         output_pin(pin_init pi);
-                        output_pin(pin_init pi, bool randomize);
+                        output_pin(pin_init pi, bool dynamic);
                        ~output_pin()=default;
         void            source_value(void);         // push value to connected pins
         float           get_value(void);            // overrides the base class method
@@ -85,7 +85,7 @@ class output_pin : public pin{
 
     private:
         vector<input_pin*>* connections;
-        bool randomize_pin;
+        bool dynamic_pin;
 
 };
 

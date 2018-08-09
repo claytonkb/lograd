@@ -165,6 +165,10 @@ void dev_prompt(void){
                 circ->show_input_vars();
                 break;
 
+            case 11:
+                cout << "circuit loss: " << circ->get_circuit_loss() << endl;
+                break;
+
             default:
                 _say("unrecognized cmd_code");
                 dev_menu();
@@ -211,7 +215,9 @@ void dev_menu(void){
             "6     .....    cell.circ_name lookup in circ_map\n"
             "7     .....    circ->iterate(1)\n"
             "8     .....    circ->show_pin_values()\n"
-            "9     .....    circ->show_pin_gradients()\n" );
+            "9     .....    circ->show_pin_gradients()\n"
+            "10    .....    circ->show_input_vars()\n"
+            "11    .....    circ->get_circuit_loss()\n" );
 
 }
 
