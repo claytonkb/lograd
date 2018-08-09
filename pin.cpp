@@ -281,6 +281,11 @@ void output_pin::backward_update(void){
     }
 //_df(loss_gradient);
 
+    // kick off this_cell->backward_propagate(), which updates each input_pin's
+    //      loss_gradient
+
+    this_cell->backward_propagate();
+
 }
 
 
@@ -329,11 +334,14 @@ void input_pin::backward_update(void){
     //      to gradient_sum
     // update loss_gradient
 
-    float cell_gradient = this_cell->get_loss_gradient();
-    loss_gradient = sqrt(cell_gradient);
+//    float cell_gradient = this_cell->get_loss_gradient();
+    loss_gradient = sqrt(incoming_loss_gradient) + rand_range(-0.1,0.1);
 
 }
 
+void input_pin::set_incoming_loss_gradient(float x){
+    incoming_loss_gradient = x;
+}
 
 // Clayton Bauman 2018
 

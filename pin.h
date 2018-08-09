@@ -106,8 +106,10 @@ class input_pin : public pin{
         output_pin*     get_connection(void);
         void            forward_update(void);
         void            backward_update(void);
+        void            set_incoming_loss_gradient(float x);
 
     private:
+        float           incoming_loss_gradient;
         bool            connected;
         output_pin*     connection;
 

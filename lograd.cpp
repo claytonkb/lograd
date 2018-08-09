@@ -96,12 +96,14 @@ void dev_prompt(void){
                     lgc_file_processed=true;
                 }
 
-                circ = new circuit;
+                circ = new circuit(lgc);
 
-                circ->init_circ_map(lgc);
-                circ->init_pin_list();
+//                circ = new circuit;
+//
+//                circ->init_circ_map(lgc);
+//                circ->init_pin_list();
 
-                circ->iterate(1);
+//                circ->iterate(1);
 
 //                circ->do_forward_pass();
 //                circ->update_loss();
@@ -147,6 +149,22 @@ void dev_prompt(void){
                 cout << c->get_circ_name() << endl;
                 break;
 
+            case 7:
+                circ->iterate(1);
+                break;
+
+            case 8:
+                circ->show_pin_values();
+                break;
+
+            case 9:
+                circ->show_pin_gradients();
+                break;
+
+            case 10:
+                circ->show_input_vars();
+                break;
+
             default:
                 _say("unrecognized cmd_code");
                 dev_menu();
@@ -190,7 +208,10 @@ void dev_menu(void){
             "3     .....    read test.lgc\n"
             "4     .....    string lookup in circ_map\n"
             "5     .....    output_pin lookup in circ_map\n"
-            "6     .....    cell.circ_name lookup in circ_map\n" );
+            "6     .....    cell.circ_name lookup in circ_map\n"
+            "7     .....    circ->iterate(1)\n"
+            "8     .....    circ->show_pin_values()\n"
+            "9     .....    circ->show_pin_gradients()\n" );
 
 }
 

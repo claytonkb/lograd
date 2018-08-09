@@ -40,6 +40,27 @@ circuit::circuit(){
 
 }
 
+circuit::circuit(string_vector* lgc){
+
+    mode_select     = FORWARD;
+
+    all_cells       = new std::vector<cell*>();
+    input_cells     = new std::vector<cell*>();
+    prop_cells      = new std::vector<cell*>();
+    output_cells    = new std::vector<cell*>();
+    variables       = new std::vector<var_cell*>();
+
+    circuit_loss    = new loss_cell("loss");
+
+    pin_list        = new vector<pin*>;
+
+    circ_map        = new string_map;
+
+    init_circ_map(lgc);
+    init_pin_list();
+
+}
+
 void circuit::add_cell(cell *b, cell_role r, cell_type t){
     if(t==VAR_CELL){
         variables->push_back((var_cell*)b);
@@ -66,7 +87,6 @@ void circuit::add_cell(cell *b, cell_role r){
 }
 
 void circuit::designate_output_cell(cell *b){
-//    cout << "designated output: " << b->get_circ_name() << endl;
     output_cells->push_back(b);
 }
 
@@ -82,7 +102,6 @@ vector<cell*>* circuit::get_output_cells(void){
     return output_cells;
 }
 
-
 void circuit::do_forward_pass(void){
 
     int pin_list_size = pin_list->size();
@@ -91,17 +110,7 @@ void circuit::do_forward_pass(void){
         ((*pin_list)[i])->forward_update();
     }
 
-//    _say("---------------------------------");
-
-    // List pin values:
-//    pin* p;
-//    for(int i=0;i<pin_list_size;i++){
-//        p = (*pin_list)[i];
-//        cout << p->get_circ_name() << "    " << p->get_value() << endl;
-//    }
-
 }
-
 
 void circuit::do_backward_pass(void){
 
@@ -111,18 +120,6 @@ void circuit::do_backward_pass(void){
         ((*pin_list)[i])->backward_update();
     }
 
-//_df( circuit_loss->get_total_loss() );
-//_df( circuit_loss->get_total_loss() );
-
-    _say("---------------------------------");
-    // List pin values:
-    pin* p;
-    for(int i=0;i<pin_list_size;i++){
-        p = (*pin_list)[i];
-//        p->set_loss_gradient(0.618);
-        cout << p->get_circ_name() << "    " << (float)p->get_loss_gradient() << endl;
-    }
-
 }
 
 // XXX Note:
@@ -130,32 +127,19 @@ void circuit::do_backward_pass(void){
 //      during update of the loss function and variables, based on gradients
 
 void circuit::update_loss(void){
-    //    circuit_loss->calculate_total_loss();
-    // output_pin in each cell connected to loss_cell must be have its loss_gradient
-    // updated
-
     circuit_loss->calculate_total_loss();
-
-//    _say("---------------------------------");
-//    // List pin values:
-//    int pin_list_size = pin_list->size();
-//    pin* p;
-//    for(int i=0;i<pin_list_size;i++){
-//        p = (*pin_list)[i];
-////        p->set_loss_gradient(0.618);
-//        cout << p->get_circ_name() << "    " << (float)p->get_loss_gradient() << endl;
-//    }
-
 }
 
 void circuit::update_vars(void){
 
-//    int num_input_cells = input_cells->size();
-//    int i;
-//
-//    for(i=0;i<num_input_cells;i++){
-//        ((*input_cells)[i])->backward_propagate();
-//    }
+    int num_input_cells = input_cells->size();
+    int i;
+
+    for(i=0;i<num_input_cells;i++){
+        if((*input_cells)[i]->get_type() == VAR_CELL){
+            ((var_cell*)((*input_cells)[i]))->update_var();
+        }
+    }
 
 }
 
@@ -737,6 +721,38 @@ void circuit::pin_list_insert(pin* p){
 
 vector<pin*>* circuit::get_pin_list(void){
     return pin_list;
+}
+
+void circuit::show_pin_values(void){
+    int pin_list_size = pin_list->size();
+    pin* p;
+    for(int i=0;i<pin_list_size;i++){
+        p = (*pin_list)[i];
+        cout << p->get_circ_name() << "    " << p->get_value() << endl;
+    }
+}
+
+void circuit::show_pin_gradients(void){
+    int pin_list_size = pin_list->size();
+    pin* p;
+    for(int i=0;i<pin_list_size;i++){
+        p = (*pin_list)[i];
+        cout << p->get_circ_name() << "    " << (float)p->get_loss_gradient() << endl;
+    }
+}
+
+void circuit::show_input_vars(void){
+
+    int num_input_cells = input_cells->size();
+    cell* c;
+
+    output_pin* op;
+    for(int i=0;i<num_input_cells;i++){
+        c = (*input_cells)[i];
+        op = c->get_f_pin();
+        cout << op->get_circ_name() << "    " << op->get_value() << endl;
+    }
+
 }
 
 

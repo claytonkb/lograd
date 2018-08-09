@@ -44,6 +44,9 @@ class cell{
         virtual void    forward_propagate(void);
         virtual void    backward_propagate(void);
 
+//        void    forward_propagate(void);
+//        void    backward_propagate(void);
+
         float           get_loss_gradient(void);
 
     protected:
@@ -100,6 +103,7 @@ class const_cell : public cell{
         void            connect_f(input_pin* pin);
         void            forward_propagate(void);
         void            backward_propagate(void);
+        void            update_var(void);
 
 };
 
@@ -116,6 +120,7 @@ class rand_cell : public cell{
         void            connect_f(input_pin* pin);
         void            forward_propagate(void);
         void            backward_propagate(void);
+        void            update_var(void);
 
 };
 
@@ -134,6 +139,7 @@ class var_cell : public cell{
         void            connect_f(input_pin* pin);
         void            forward_propagate(void);
         void            backward_propagate(void);
+        void            update_var(void);
 
 };
 

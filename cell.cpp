@@ -76,8 +76,15 @@ void cell::forward_propagate(void){
 }
 
 void cell::backward_propagate(void){
+
     if(visited_bwd) return;
     set_visited_bwd();
+
+    int num_inputs = inputs->size();
+    for(int i=0; i<num_inputs; i++){
+        (*inputs)[i]->set_incoming_loss_gradient(f->get_loss_gradient());
+    }
+
 }
 
 float cell::get_loss_gradient(void){
@@ -134,6 +141,11 @@ void const_cell::forward_propagate(void){
 void const_cell::backward_propagate(void){
 }
 
+void const_cell::update_var(void){
+    // This function intentionally left blank
+}
+
+
                     //////////////////////////////
                     //         RAND CELL        //
                     //////////////////////////////
@@ -142,6 +154,10 @@ void rand_cell::forward_propagate(void){
 }
 
 void rand_cell::backward_propagate(void){
+}
+
+void rand_cell::update_var(void){
+    // This function intentionally left blank
 }
 
 
@@ -161,6 +177,13 @@ void var_cell::forward_propagate(void){
 }
 
 void var_cell::backward_propagate(void){
+}
+
+void var_cell::update_var(void){
+    float f_pin_value = f->get_value();
+    float f_pin_gradient = f->get_loss_gradient();
+    float new_value = f_pin_value - f_pin_gradient;
+    f->set_value(new_value);
 }
 
 

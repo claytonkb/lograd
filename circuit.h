@@ -18,6 +18,7 @@ class circuit{
 
     public:
                             circuit();
+                            circuit(string_vector* lgc);
                            ~circuit()=default;
 
         void                add_cell(cell *b, cell_role r, cell_type t);
@@ -44,6 +45,10 @@ class circuit{
         void                iterate(int n);
 
         void                reset_iteration(void);
+
+        void                show_pin_values(void);
+        void                show_pin_gradients(void);
+        void                show_input_vars(void);
 
     private:
         direction           mode_select;  // switch between forward and reverse modes
