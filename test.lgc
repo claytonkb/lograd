@@ -1,0 +1,58 @@
+-- input cell declaration section --
+.cel
+
+.var
+s0 r2
+s1 r2
+
+-- Note: initialization can be 0, 1 or r --
+
+-- constant cell declaration section --
+.con
+c0 0
+c1 1
+c2 1
+c3 0
+
+-- random cell declaration section --
+-- .ran --
+-- r0 1 --
+
+-- activation cells declaration section --
+.act
+a0
+a1
+
+-- soft-mux cells declaration section --
+.mux
+m0
+m1
+m2
+
+-- wires connection section --
+.wir
+s0.f a0.x
+s1.f a1.x
+
+a0.f m0.s
+a0.f m1.s
+a1.f m2.s
+
+-- r0.f m0.x0 --
+c0.f m0.x0
+c1.f m0.x1
+c2.f m1.x0
+c3.f m1.x1
+
+m0.f m2.x0
+m1.f m2.x1
+
+.out
+m2
+
+-- loss section --
+.los
+
+m2.f 1
+
+
