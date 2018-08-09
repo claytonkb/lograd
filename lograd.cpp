@@ -45,7 +45,11 @@ void dev_prompt(void){
     int i;
 
     _say("type 0 for menu");
-    _msg("load circ_map before testing!!!");
+    _msg("load test.lgc (cmd_code=3) before testing!!!");
+    _msg("XXX:");
+    _msg("     Implement per-cell fwd/bwd_propagate() methods");
+    _msg("     Trace value-flow for forward-propagate");
+    _msg("     Trace gradient-flow for backward-propagate");
 
     ifstream t("test.lgc");
     bool lgc_file_processed;
@@ -130,45 +134,45 @@ void dev_prompt(void){
                 break;
 
             case 4:
-                cmd_code_str = strtok(NULL, " ");
-                if(cmd_code_str == NULL){ _say("no argument given"); continue; }
-                cout << *(string*)((*m)[cmd_code_str]) << endl;
-                break;
-
-            case 5:
-                cmd_code_str = strtok(NULL, " ");
-                if(cmd_code_str == NULL){ _say("no argument given"); continue; }
-                op = (output_pin*)(void*)((*m)[cmd_code_str]);
-                cout << op->get_value() << endl;
-                break;
-
-            case 6:
-                cmd_code_str = strtok(NULL, " ");
-                if(cmd_code_str == NULL){ _say("no argument given"); continue; }
-                c = (cell*)(void*)((*m)[cmd_code_str]);
-                cout << c->get_circ_name() << endl;
-                break;
-
-            case 7:
                 circ->iterate(1);
                 break;
 
-            case 8:
+            case 5:
                 circ->show_pin_values();
                 break;
 
-            case 9:
+            case 6:
                 circ->show_pin_gradients();
                 break;
 
-            case 10:
+            case 7:
                 circ->show_input_vars();
                 break;
 
-            case 11:
+            case 8:
                 cout << "circuit loss: " << circ->get_circuit_loss() << endl;
                 break;
 
+//            case 4:
+//                cmd_code_str = strtok(NULL, " ");
+//                if(cmd_code_str == NULL){ _say("no argument given"); continue; }
+//                cout << *(string*)((*m)[cmd_code_str]) << endl;
+//                break;
+//
+//            case 5:
+//                cmd_code_str = strtok(NULL, " ");
+//                if(cmd_code_str == NULL){ _say("no argument given"); continue; }
+//                op = (output_pin*)(void*)((*m)[cmd_code_str]);
+//                cout << op->get_value() << endl;
+//                break;
+//
+//            case 6:
+//                cmd_code_str = strtok(NULL, " ");
+//                if(cmd_code_str == NULL){ _say("no argument given"); continue; }
+//                c = (cell*)(void*)((*m)[cmd_code_str]);
+//                cout << c->get_circ_name() << endl;
+//                break;
+//
             default:
                 _say("unrecognized cmd_code");
                 dev_menu();
@@ -210,14 +214,15 @@ void dev_menu(void){
             "1     .....    dev one-off\n"
             "2     .....    exit\n"
             "3     .....    read test.lgc\n"
-            "4     .....    string lookup in circ_map\n"
-            "5     .....    output_pin lookup in circ_map\n"
-            "6     .....    cell.circ_name lookup in circ_map\n"
-            "7     .....    circ->iterate(1)\n"
-            "8     .....    circ->show_pin_values()\n"
-            "9     .....    circ->show_pin_gradients()\n"
-            "10    .....    circ->show_input_vars()\n"
-            "11    .....    circ->get_circuit_loss()\n" );
+            "4     .....    circ->iterate(1)\n"
+            "5     .....    circ->show_pin_values()\n"
+            "6     .....    circ->show_pin_gradients()\n"
+            "7     .....    circ->show_input_vars()\n"
+            "8     .....    circ->get_circuit_loss()\n" );
+
+//            "4     .....    string lookup in circ_map\n"
+//            "5     .....    output_pin lookup in circ_map\n"
+//            "6     .....    cell.circ_name lookup in circ_map\n"
 
 }
 

@@ -183,7 +183,7 @@ void var_cell::update_var(void){
 
     float f_pin_value = f->get_value();
     float f_pin_gradient = f->get_loss_gradient();
-    float new_value = f_pin_value - f_pin_gradient;
+    float new_value = f_pin_value - (10*f_pin_gradient);
     f->set_value(new_value);
 //_df(f_pin_value);
 //_df(f_pin_gradient);
@@ -287,8 +287,8 @@ void loss_cell::calculate_total_loss(void){
         value = (lpt->pin)->get_value();
         diff = value - lpt->target;
 
-//_df(value);
-//_df(lpt->target);
+_df(value);
+_df(lpt->target);
 
         diffs.push_back( diff );
     }
