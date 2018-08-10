@@ -207,7 +207,7 @@ void var_cell::update_var(void){
 
     float f_pin_value = f->get_value();
     float f_pin_gradient = f->get_loss_gradient();
-    float new_value = f_pin_value - (10*f_pin_gradient);
+    float new_value = f_pin_value + (gamma*f_pin_gradient);
     f->set_value(new_value);
 //_df(f_pin_value);
 //_df(f_pin_gradient);
@@ -263,10 +263,13 @@ void act_cell::forward_propagate(void){
     f->set_value(act_fn(x->get_value()));
 }
 
-//
+// x.loss_gradient <-- pd_soft_sign(f.value) * f.loss_gradient
 //
 void act_cell::backward_propagate(void){
-//    f->set_loss_gradient(pd_act_fn(x->get_value()));
+    x->set_loss_gradient(
+            pd_soft_sign(f->get_value())
+            *
+            f->get_loss_gradient());
 }
 
 

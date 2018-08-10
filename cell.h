@@ -59,7 +59,6 @@ class cell{
 };
 
 
-
 ////////////////////////////////////////////////////////////////////////////
 // CONST CELL
 ////////////////////////////////////////////////////////////////////////////
@@ -109,6 +108,7 @@ class var_cell : public cell{
     public:
                         var_cell(string name) : cell(name) {
                             type=VAR_CELL;
+                            gamma=10;
                         };
                        ~var_cell()=default;
         void            set_var(float x);
@@ -117,6 +117,8 @@ class var_cell : public cell{
         void            backward_propagate(void);
         void            update_var(void);
 
+    private:
+        float           gamma;
 };
 
 

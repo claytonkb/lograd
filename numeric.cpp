@@ -119,7 +119,8 @@ double rand_normal(double mean, double stddev){ //Box muller method
 }
 
 
-//
+// softsign(x) = 1 / 1+|x|
+// df/dx(softsign) = 1 / (1+|x|)^2
 //
 float soft_sign(float x){
 
@@ -254,6 +255,7 @@ float mean_sq_error(vector<float> *diffs){
     return (accumulator / (float)num_terms);
 
 }
+
 
 
 // Clayton Bauman 2018
