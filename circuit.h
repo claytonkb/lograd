@@ -10,9 +10,9 @@
 using namespace std;
 
 
-                    //////////////////////////////
-                    //          CIRCUIT         //
-                    //////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+// CIRCUIT
+////////////////////////////////////////////////////////////////////////////
 
 class circuit{
 
@@ -20,6 +20,19 @@ class circuit{
                             circuit();
                             circuit(string_vector* lgc);
                            ~circuit()=default;
+
+        void                iterate(int n);
+
+        void                do_forward_pass(void);
+        void                do_backward_pass(void);
+
+        void                update_loss(void);
+        void                update_vars(void);
+
+        void                reset_iteration(void);
+
+        void                init_circ_map(string_vector* lgc);
+        void                init_pin_list(void);
 
         void                add_cell(cell *b, cell_role r, cell_type t);
         void                add_cell(cell *b, cell_role r);
@@ -30,21 +43,8 @@ class circuit{
         void                designate_output_cell(cell *b);
         loss_cell*          get_loss_cell(void);
 
-        void                init_circ_map(string_vector* lgc);
-        void                init_pin_list(void);
-
         void                pin_list_insert(pin* p);
         vector<pin*>*       get_pin_list(void);
-
-        void                do_forward_pass(void);
-        void                do_backward_pass(void);
-
-        void                update_loss(void);
-        void                update_vars(void);
-
-        void                iterate(int n);
-
-        void                reset_iteration(void);
 
         void                show_pin_values(void);
         void                show_pin_gradients(void);

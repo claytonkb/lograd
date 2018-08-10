@@ -266,6 +266,7 @@ void act_cell::forward_propagate(void){
 //
 //
 void act_cell::backward_propagate(void){
+//    f->set_loss_gradient(pd_act_fn(x->get_value()));
 }
 
 
@@ -316,19 +317,6 @@ void soft_mux_cell::set_x1_pin(input_pin* x1_pin){
 //
 void soft_mux_cell::forward_propagate(void){
 
-//    float curr_s_pin = s->get_value()
-//    float curr_x0_pin = x0->get_value()
-//    float curr_x1_pin = x1->get_value()
-//
-//    float new_f_pin =
-//           2 * curr_s_pin * curr_x1_pin
-//           +
-//          (1-curr_s_pin) * curr_x0_pin;
-//
-//    new_f_pin = 2*new_f_pin - 1;
-
-//    float new_f = 2 * (t*y1 + (1-t)*y0) - 1;
-
     float t  = (s->get_value()  + 1) / 2;
     float y0 = (x0->get_value() + 1) / 2;
     float y1 = (x1->get_value() + 1) / 2;
@@ -373,23 +361,28 @@ void loss_cell::calculate_total_loss(void){
     loss_pin_target *lpt;
 
     float value;
-
+    float target;
     float diff;
+
     vector<float> diffs;
 
     for(i=0;i<num_connections;i++){
-        lpt = (*connections)[i];
-        value = (lpt->pin)->get_value();
-        diff = value - lpt->target;
 
-//_df(value);
-//_df(lpt->target);
+        lpt = (*connections)[i];
+
+        value = (lpt->pin)->get_value();
+        target = lpt->target;
+
+        value  = (value /2)+0.5;       
+        target = (target/2)+0.5;       
+
+        diff = fabs(target-value);
 
         diffs.push_back( diff );
     }
 
     total_loss = mean_sq_error(&diffs);
-//_df(total_loss);
+
     x->set_loss_gradient(total_loss);
 
 }

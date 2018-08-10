@@ -18,10 +18,12 @@ const string* type_mux_cell   = new string("mux_cell");
 const string* nil             = new string("nil");
 
 
-                    //////////////////////////////
-                    //          CIRCUIT         //
-                    //////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+// CIRCUIT
+////////////////////////////////////////////////////////////////////////////
 
+//
+//
 circuit::circuit(){
 
     mode_select     = FORWARD;
@@ -40,6 +42,8 @@ circuit::circuit(){
 
 }
 
+//
+//
 circuit::circuit(string_vector* lgc){
 
     mode_select     = FORWARD;
@@ -61,47 +65,25 @@ circuit::circuit(string_vector* lgc){
 
 }
 
-void circuit::add_cell(cell *b, cell_role r, cell_type t){
-    if(t==VAR_CELL){
-        variables->push_back((var_cell*)b);
+
+//
+//
+void circuit::iterate(int n){
+
+    for(int i=0;i<n;i++){
+
+        do_forward_pass();
+        update_loss();
+        do_backward_pass();
+        update_vars();
+        reset_iteration();
+
     }
-    add_cell(b,r);
+
 }
 
-void circuit::add_cell(cell *b, cell_role r){
-
-    all_cells->push_back(b);
-    switch(r){
-        case INPUT_ROLE:
-            input_cells->push_back(b);
-            break;
-        case PROPAGATE_ROLE:
-            prop_cells->push_back(b);
-            break;
-//        case OUTPUT:
-//            output_cells->push_back(b);
-//            break;
-        default:
-            _fatal("Can only add input or propagation cells to circuit");
-    }
-}
-
-void circuit::designate_output_cell(cell *b){
-    output_cells->push_back(b);
-}
-
-loss_cell* circuit::get_loss_cell(void){
-    return circuit_loss;
-}
-
-vector<cell*>* circuit::get_all_cells(void){
-    return all_cells;
-}
-
-vector<cell*>* circuit::get_output_cells(void){
-    return output_cells;
-}
-
+//
+//
 void circuit::do_forward_pass(void){
 
     int pin_list_size = pin_list->size();
@@ -112,6 +94,9 @@ void circuit::do_forward_pass(void){
 
 }
 
+
+//
+//
 void circuit::do_backward_pass(void){
 
     int pin_list_size = pin_list->size();
@@ -126,10 +111,14 @@ void circuit::do_backward_pass(void){
 //      We might want a better naming convention for loss_cell and input_cells
 //      during update of the loss function and variables, based on gradients
 
+//
+//
 void circuit::update_loss(void){
     circuit_loss->calculate_total_loss();
 }
 
+//
+//
 void circuit::update_vars(void){
 
     int num_var_cells = variables->size();
@@ -152,17 +141,8 @@ void circuit::update_vars(void){
 
 }
 
-void circuit::iterate(int n){
-    for(int i=0;i<n;i++){
-        do_forward_pass();
-        update_loss();
-        do_backward_pass();
-        update_vars();
-        reset_iteration();
-    }
-}
-
-
+//
+//
 void circuit::reset_iteration(void){
 
     // for each cell in all_cells:
@@ -179,6 +159,8 @@ void circuit::reset_iteration(void){
 }
 
 
+//
+//
 void circuit::init_circ_map(string_vector* lgc){
 
     string_map* m = circ_map;//new string_map;
@@ -444,7 +426,7 @@ void circuit::init_circ_map(string_vector* lgc){
             lc = new act_cell((string)(*lgc)[i]);
 //            lc->dev_id = i;
 
-            f = new output_pin(INIT_RAND01);
+            f = new output_pin(INIT_RAND11);
             f->set_circ_name((*lgc)[i]+f_pin);
             x = new input_pin();
             x->set_circ_name((*lgc)[i]+x_pin);
@@ -483,7 +465,7 @@ void circuit::init_circ_map(string_vector* lgc){
             mc = new soft_mux_cell((string)(*lgc)[i]);
 //            mc->dev_id = i;
 
-            f  = new output_pin(INIT_RAND01);
+            f  = new output_pin(INIT_RAND11);
             s  = new input_pin();
             x0 = new input_pin();
             x1 = new input_pin();
@@ -623,7 +605,7 @@ void circuit::init_circ_map(string_vector* lgc){
 
         // Connect each named pin to loss_cell.x, along with its loss target
         op = (output_pin*)(void*)((*m)[(*lgc)[i]]);
-        loss_target = atof((*lgc)[i].c_str());
+        loss_target = atof((*lgc)[i+1].c_str());
 
         loss->connect_x(op,loss_target);
         op->add_connection_to_pin(loss->get_x_pin());
@@ -641,6 +623,8 @@ void circuit::init_circ_map(string_vector* lgc){
 }
 
 
+//
+//
 void circuit::init_pin_list(void){//(string_map* circ_map){
 
     vector<cell*>* output_cells = get_output_cells();
@@ -712,15 +696,74 @@ void circuit::init_pin_list(void){//(string_map* circ_map){
 }
 
 
+//
+//
+void circuit::add_cell(cell *b, cell_role r, cell_type t){
+    if(t==VAR_CELL){
+        variables->push_back((var_cell*)b);
+    }
+    add_cell(b,r);
+}
+
+//
+//
+void circuit::add_cell(cell *b, cell_role r){
+
+    all_cells->push_back(b);
+    switch(r){
+        case INPUT_ROLE:
+            input_cells->push_back(b);
+            break;
+        case PROPAGATE_ROLE:
+            prop_cells->push_back(b);
+            break;
+//        case OUTPUT:
+//            output_cells->push_back(b);
+//            break;
+        default:
+            _fatal("Can only add input or propagation cells to circuit");
+    }
+}
+
+//
+//
+void circuit::designate_output_cell(cell *b){
+    output_cells->push_back(b);
+}
+
+//
+//
+loss_cell* circuit::get_loss_cell(void){
+    return circuit_loss;
+}
+
+//
+//
+vector<cell*>* circuit::get_all_cells(void){
+    return all_cells;
+}
+
+//
+//
+vector<cell*>* circuit::get_output_cells(void){
+    return output_cells;
+}
+
+
+//
+//
 void circuit::pin_list_insert(pin* p){
     pin_list->push_back(p);
 }
 
-
+//
+//
 vector<pin*>* circuit::get_pin_list(void){
     return pin_list;
 }
 
+//
+//
 void circuit::show_pin_values(void){
     int pin_list_size = pin_list->size();
     pin* p;
@@ -730,6 +773,8 @@ void circuit::show_pin_values(void){
     }
 }
 
+//
+//
 void circuit::show_pin_gradients(void){
     int pin_list_size = pin_list->size();
     pin* p;
@@ -739,6 +784,8 @@ void circuit::show_pin_gradients(void){
     }
 }
 
+//
+//
 void circuit::show_input_vars(void){
 
     int num_input_cells = input_cells->size();
@@ -753,7 +800,8 @@ void circuit::show_input_vars(void){
 
 }
 
-
+//
+//
 float circuit::get_circuit_loss(void){
     return circuit_loss->get_total_loss();
 }

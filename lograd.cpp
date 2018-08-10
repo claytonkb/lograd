@@ -1,28 +1,30 @@
 // lograd.cpp
 // g++ -std=c++11 -o lograd lograd.cpp cell.cpp pin.cpp circuit.cpp lgc.cpp numeric.cpp -lm
 
-//s0.f    1                 s0.f    1
-//c3.f    -1                c3.f    -1
-//c2.f    1                 c2.f    1
-//c1.f    1                 c1.f    1
-//c0.f    -1                c0.f    -1
-//a0.x    1                 a0.x    1
-//a0.f    0.652443          a0.f    0.5
-//s1.f    0                 s1.f    0
-//m1.s    1                 m1.s    0.5
-//m1.x0    1                m1.x0    1
-//m1.x1    1                m1.x1    -1
-//m1.f    0.30073           m1.f    -0.5
-//m0.s    1                 m0.s    0.5
-//m0.x0    1                m0.x0    -1
-//m0.x1    1                m0.x1    1
-//m0.f    0.902785          m0.f    0.5
-//a1.x    1                 a1.x    0
-//a1.f    0.450554          a1.f    0
-//m2.s    1                 m2.s    0
-//m2.x0    1                m2.x0    0.5
-//m2.x1    1                m2.x1    -0.5
-//m2.f    0.142496          m2.f    0
+//
+//s0.f    1
+//c3.f    -1
+//c2.f    1
+//c1.f    1
+//c0.f    -1
+//a0.x    1
+//a0.f    0.419057  a0.f    0.5
+//s1.f    0
+//m1.s    1         m1.s    0.5
+//m1.x0    1
+//m1.x1    1        m1.x1    -1
+//m1.f    0.437134  m1.f    -0.5
+//m0.s    1         m0.s    0.5
+//m0.x0    1        m0.x0    -1
+//m0.x1    1
+//m0.f    0.801971  m0.f    0.5
+//a1.x    1         a1.x    0
+//a1.f    0.827121  a1.f    0
+//m2.s    1         m2.s    0
+//m2.x0    1        m2.x0    0.5
+//m2.x1    1        m2.x1    -0.5
+//m2.f    0.267366  m2.f    0
+//
 
 
 #include "lograd.h"
@@ -91,6 +93,9 @@ void dev_prompt(void){
 
     std::vector<int> v;
 
+//    float s, x0, x1, u, y0, y1, f;
+    float target, actual, error;
+
     while(1){
 
         _prn("% ");
@@ -108,6 +113,43 @@ void dev_prompt(void){
 
             case 1:
                 _say("cmd_code==1");
+
+//                cmd_code_str = strtok(NULL, " ");
+//                if(cmd_code_str == NULL){ _say("not enough arguments"); continue; }
+//                target = atof(cmd_code_str);
+//
+//                cmd_code_str = strtok(NULL, " ");
+//                if(cmd_code_str == NULL){ _say("not enough arguments"); continue; }
+//                actual = atof(cmd_code_str);
+//
+//                target = (target/2)+0.5;
+//                actual = (actual/2)+0.5;
+//
+//                error = fabs(target-actual);
+//
+//                error = error*error;
+//
+//                _df(error);
+
+//                cmd_code_str = strtok(NULL, " ");
+//                if(cmd_code_str == NULL){ _say("not enough arguments"); continue; }
+//                s = atof(cmd_code_str);
+//
+//                cmd_code_str = strtok(NULL, " ");
+//                if(cmd_code_str == NULL){ _say("not enough arguments"); continue; }
+//                x0 = atof(cmd_code_str);
+//
+//                cmd_code_str = strtok(NULL, " ");
+//                if(cmd_code_str == NULL){ _say("not enough arguments"); continue; }
+//                x1 = atof(cmd_code_str);
+//
+//                u  =  (s + 1) / 2;
+//                y0 = (x0 + 1) / 2;
+//                y1 = (x1 + 1) / 2;
+//
+//                f = (2 * (u*y1 + (1-u)*y0) - 1);
+//                _df(f);
+
                 break;
 
             case 2:
@@ -125,19 +167,6 @@ void dev_prompt(void){
                 }
 
                 circ = new circuit(lgc);
-
-//                circ = new circuit;
-//
-//                circ->init_circ_map(lgc);
-//                circ->init_pin_list();
-
-//                circ->iterate(1);
-
-//                circ->do_forward_pass();
-//                circ->update_loss();
-//                circ->do_backward_pass();
-
-//                fprintf(stderr,"total_loss: %f\n", (circ->get_loss_cell())->get_total_loss());
 
                 // TODO:
                 //
@@ -262,7 +291,13 @@ void dev_menu(void){
             "5     .....    circ->show_pin_values()\n"
             "6     .....    circ->show_pin_gradients()\n"
             "7     .....    circ->show_input_vars()\n"
-            "8     .....    circ->get_circuit_loss()\n" );
+            "8     .....    circ->get_circuit_loss()\n"
+            "9     .....    circ->do_forward_pass()\n"
+            "10    .....    circ->update_loss()\n"
+            "11    .....    circ->do_backward_pass()\n"
+            "12    .....    circ->update_vars()\n"
+            "13    .....    circ->reset_iteration()\n" );
+
 
 //            "4     .....    string lookup in circ_map\n"
 //            "5     .....    output_pin lookup in circ_map\n"
