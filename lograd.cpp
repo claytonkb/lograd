@@ -1,31 +1,7 @@
 // lograd.cpp
 // g++ -std=c++11 -o lograd lograd.cpp cell.cpp pin.cpp circuit.cpp lgc.cpp numeric.cpp -lm
 
-//
-//s0.f    1
-//c3.f    -1
-//c2.f    1
-//c1.f    1
-//c0.f    -1
-//a0.x    1
-//a0.f    0.419057  a0.f    0.5
-//s1.f    0
-//m1.s    1         m1.s    0.5
-//m1.x0    1
-//m1.x1    1        m1.x1    -1
-//m1.f    0.437134  m1.f    -0.5
-//m0.s    1         m0.s    0.5
-//m0.x0    1        m0.x0    -1
-//m0.x1    1
-//m0.f    0.801971  m0.f    0.5
-//a1.x    1         a1.x    0
-//a1.f    0.827121  a1.f    0
-//m2.s    1         m2.s    0
-//m2.x0    1        m2.x0    0.5
-//m2.x1    1        m2.x1    -0.5
-//m2.f    0.267366  m2.f    0
-//
-
+// XXX port bstruct_to_gv() !!!
 
 #include "lograd.h"
 #include "cell.h"
@@ -95,6 +71,7 @@ void dev_prompt(void){
 
 //    float s, x0, x1, u, y0, y1, f;
     float target, actual, error;
+    float gamma=10;
 
     while(1){
 
@@ -187,7 +164,8 @@ void dev_prompt(void){
                 break;
 
             case 4:
-                circ->iterate(1);
+                gamma *= 0.9;
+                circ->iterate(1,gamma);
                 break;
 
             case 5:

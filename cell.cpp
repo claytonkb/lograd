@@ -203,15 +203,26 @@ void var_cell::backward_propagate(void){
 
 //
 //
-void var_cell::update_var(void){
+void var_cell::update(void){
 
     float f_pin_value = f->get_value();
     float f_pin_gradient = f->get_loss_gradient();
     float new_value = f_pin_value + (gamma*f_pin_gradient);
     f->set_value(new_value);
-//_df(f_pin_value);
+
+    //_df(f_pin_value);
 //_df(f_pin_gradient);
 //_df(new_value);
+
+}
+
+
+//
+//
+void var_cell::update(float g){
+
+    gamma=g;
+    update();
 
 }
 
@@ -267,7 +278,7 @@ void act_cell::forward_propagate(void){
 //
 void act_cell::backward_propagate(void){
     x->set_loss_gradient(
-            pd_soft_sign(f->get_value())
+            pd_soft_sign(x->get_value())
             *
             f->get_loss_gradient());
 }
@@ -328,9 +339,32 @@ void soft_mux_cell::forward_propagate(void){
 
 }
 
-//
+//  s.loss_gradient <-- pd_mux_s(x0.value,x1.value) * f.loss_gradient
+// x0.loss_gradient <-- pd_mux_x0(s.value) * f.loss_gradient
+// x1.loss_gradient <-- pd_mux_x1(s.value) * f.loss_gradient
 //
 void soft_mux_cell::backward_propagate(void){
+
+//    x->set_loss_gradient(
+//            pd_soft_sign(x->get_value())
+//            *
+//            f->get_loss_gradient());
+
+    s->set_loss_gradient(
+            pd_mux_s(x0->get_value(),x1->get_value())
+            *
+            f->get_loss_gradient());
+
+    x0->set_loss_gradient(
+            pd_mux_x0(s->get_value())
+            *
+            f->get_loss_gradient());
+
+    x1->set_loss_gradient(
+            pd_mux_x1(s->get_value())
+            *
+            f->get_loss_gradient());
+
 }
 
 

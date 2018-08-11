@@ -22,12 +22,14 @@ class circuit{
                            ~circuit()=default;
 
         void                iterate(int n);
+        void                iterate(int n, float g);
 
         void                do_forward_pass(void);
         void                do_backward_pass(void);
 
         void                update_loss(void);
         void                update_vars(void);
+        void                update_vars(float g);
 
         void                reset_iteration(void);
 

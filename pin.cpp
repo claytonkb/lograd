@@ -270,7 +270,7 @@ void input_pin::backward_update(void){
     // update loss_gradient
 
 //    float cell_gradient = this_cell->get_loss_gradient();
-    loss_gradient = sqrt(incoming_loss_gradient) + rand_range(-0.1,0.1);
+//    loss_gradient = sqrt(incoming_loss_gradient) + rand_range(-0.1,0.1);
 
 }
 

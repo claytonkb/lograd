@@ -84,6 +84,22 @@ void circuit::iterate(int n){
 
 //
 //
+void circuit::iterate(int n, float g){
+
+    for(int i=0;i<n;i++){
+
+        do_forward_pass();
+        update_loss();
+        do_backward_pass();
+        update_vars(g);
+        reset_iteration();
+
+    }
+
+}
+
+//
+//
 void circuit::do_forward_pass(void){
 
     int pin_list_size = pin_list->size();
@@ -128,7 +144,7 @@ void circuit::update_vars(void){
 
     for(int i=0;i<num_var_cells;i++){
 
-        (*variables)[i]->update_var();
+        (*variables)[i]->update();
 
 //        curr_var = (*variables)[i];
 //        op = curr_var->get_f_pin();
@@ -140,6 +156,20 @@ void circuit::update_vars(void){
     }
 
 }
+
+
+//
+//
+void circuit::update_vars(float g){
+
+    int num_var_cells = variables->size();
+
+    for(int i=0;i<num_var_cells;i++){
+        (*variables)[i]->update(g);
+    }
+
+}
+
 
 //
 //

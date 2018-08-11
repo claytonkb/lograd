@@ -115,7 +115,8 @@ class var_cell : public cell{
         void            connect_f(input_pin* pin);
         void            forward_propagate(void);
         void            backward_propagate(void);
-        void            update_var(void);
+        void            update(void);
+        void            update(float g);
 
     private:
         float           gamma;
