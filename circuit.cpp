@@ -646,6 +646,13 @@ void circuit::init_circ_map(string_vector* lgc){
 
     (*m)["loss"] = (void*)loss;
 
+//    //for each cell in output_cells:
+//    op = (output_pin*) ;
+//    ip =  (input_pin*)(void*)((*m)[(*lgc)[i+1]]);
+//
+//    op->add_connection_to_pin(ip);
+
+
     if(i != lgc_size){
         _warn("LGC file incorrect");
     }
@@ -836,6 +843,11 @@ float circuit::get_circuit_loss(void){
     return circuit_loss->get_total_loss();
 }
 
+//
+//
+string_map* circuit::get_circ_map(void){
+    return circ_map;
+}
 
 
 // Clayton Bauman 2018

@@ -8,6 +8,12 @@
 
 using namespace std;
 
+struct rgb_triplet{
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+};
+
 float acme_rand(pin_init pi);
 
 float rand_range(float range_lo, float range_hi);
@@ -31,6 +37,8 @@ float thresher(float x);
 
 float mean_sq_error(vector<float> *target, vector<float> *actual);
 float mean_sq_error(vector<float> *diffs);
+
+rgb_triplet* temperature_to_rgb(float temperature);
 
 // Clayton Bauman 2018
 

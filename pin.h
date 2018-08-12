@@ -81,6 +81,7 @@ class output_pin : public pin{
         float           get_value(void);
         void            sink_loss_gradient(void);   // pull loss_grad from connected pins
         void            add_connection_to_pin(input_pin* pin);
+        vector<input_pin*>* get_connections(void);
         void            forward_update(void);
         void            backward_update(void);
 

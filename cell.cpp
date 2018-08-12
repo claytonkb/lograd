@@ -138,6 +138,7 @@ void const_cell::forward_propagate(void){
 //
 void const_cell::backward_propagate(void){
     // This function intentionally left blank
+    f->set_loss_gradient(0);
 }
 
 //

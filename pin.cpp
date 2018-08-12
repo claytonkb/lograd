@@ -17,9 +17,7 @@ pin::pin(){
 }
 
 void pin::init_value(pin_init pi){
-
     value = acme_rand(pi);
-
 }
 
 float pin::get_value(void){
@@ -172,6 +170,10 @@ void output_pin::sink_loss_gradient(void){
 
 void output_pin::add_connection_to_pin(input_pin* pin){
     connections->push_back(pin);
+}
+
+vector<input_pin*>* output_pin::get_connections(void){
+    return connections;
 }
 
 

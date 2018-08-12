@@ -54,6 +54,8 @@ class circuit{
 
         float               get_circuit_loss(void);
 
+        string_map*         get_circ_map(void);
+
     private:
         direction           mode_select;  // switch between forward and reverse modes
 

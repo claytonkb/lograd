@@ -195,6 +195,7 @@ class loss_cell : public cell{
                             connections = new vector<loss_pin_target*>;
                             x = new input_pin;
                             x->set_circ_name("loss.x");
+                            x->set_this_cell(this);
                         };
                        ~loss_cell()=default;
         void            connect_x(output_pin* pin, float target);

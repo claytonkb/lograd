@@ -21,6 +21,8 @@
 #include <vector>
 #include <map>
 
+//#include "circuit.h"
+
 using namespace std;
 
 // deferred type-declarations
@@ -61,6 +63,8 @@ public:
     ~nada()=default;
     int id;
 };
+
+//void introspect_gv(circuit* circ);
 
 
 // Clayton Bauman 2018

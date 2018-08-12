@@ -257,6 +257,30 @@ float mean_sq_error(vector<float> *diffs){
 }
 
 
+rgb_triplet* temperature_to_rgb(float temperature){
+
+    rgb_triplet* a = new rgb_triplet;
+
+    // 0 <= temperature <= 1
+    if(temperature<0.5){
+        //temperature == 0,   R=0  , G=0  , B=255
+        //temperature == 0.5, R=128, G=128, B=255
+        a->r=256*temperature + 64;
+        a->g=256*temperature + 64;
+        a->b=255;
+    }
+    else{
+        //temperature == 0.5+delta,   R=128, G=128, B=255
+        //temperature == 1.0      ,   R=0  , G=0  , B=255
+        a->r=255;
+        a->g=256*(1-temperature) + 64; // 192 .. 64
+        a->b=256*(1-temperature) + 64;
+    }
+
+    return a;
+
+}
+
 
 // Clayton Bauman 2018
 
