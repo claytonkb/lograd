@@ -2,8 +2,8 @@
 .cel
 
 .var
-s0 1
-s1 0
+s0 l1
+s1 l1
 
 -- Note: initialization can be 0, 1 or r --
 

@@ -7,14 +7,14 @@
 #include "circuit.h"
 #include <time.h>
 
+using namespace std;
+
 void dev_prompt(void);
 void dev_get_line(char *buffer, FILE *stream);
 void dev_menu(void);
-void introspect_gv(circuit* circ);
+//void introspect_gv(circuit* circ);
+void introspect_gv(ofstream& outfile, circuit *circ);
 char* rgb_to_string(rgb_triplet* rgb);
-
-using namespace std;
-
 
 int main(void){
 
@@ -48,11 +48,13 @@ void dev_prompt(void){
 
     _say("type 0 for menu");
     _msg("load test.lgc (cmd_code=3) before testing!!!");
-    _msg("XXX: port introspect_gv() !!!");
+    _msg("XXX: lograd.pl");
 
-
-    ifstream t("test.lgc");
+//    ifstream t("test.lgc");
     bool lgc_file_processed;
+
+    ifstream infile;
+    ofstream outfile;
 
     stringstream *file_buf;
     string_vector* lgc;
@@ -88,9 +90,9 @@ void dev_prompt(void){
                 break;
 
             case 1:
-//                _say("cmd_code==1");
+                _say("cmd_code==1");
 
-                introspect_gv(circ);
+//                introspect_gv(circ);
 
                 break;
 
@@ -99,9 +101,14 @@ void dev_prompt(void){
                 return;
 
             case 3:
+                cmd_code_str = strtok(NULL, " ");
+                if(cmd_code_str == NULL){ _say("no argument given"); continue; }
+
+                infile.open(cmd_code_str, std::ifstream::in);
+
                 if(!lgc_file_processed){
                     file_buf = new stringstream;
-                    *file_buf << t.rdbuf();
+                    *file_buf << infile.rdbuf();
 
                     lgc = lgc_process2(file_buf);
                     _say("test.lgc read in");
@@ -130,6 +137,7 @@ void dev_prompt(void){
 
             case 4:
                 gamma *= 0.9;
+                _df(gamma);
                 circ->iterate(1,gamma);
                 break;
 
@@ -169,6 +177,12 @@ void dev_prompt(void){
                 circ->reset_iteration();
                 break;
 
+            case 14:
+                outfile.open("test.dot", std::ofstream::out);
+                introspect_gv(outfile,circ);
+//                introspect_gv(circ);
+                break;
+
 //            case 4:
 //                cmd_code_str = strtok(NULL, " ");
 //                if(cmd_code_str == NULL){ _say("no argument given"); continue; }
@@ -188,7 +202,7 @@ void dev_prompt(void){
 //                c = (cell*)(void*)((*m)[cmd_code_str]);
 //                cout << c->get_circ_name() << endl;
 //                break;
-//
+
             default:
                 _say("unrecognized cmd_code");
                 dev_menu();
@@ -239,7 +253,8 @@ void dev_menu(void){
             "10    .....    circ->update_loss()\n"
             "11    .....    circ->do_backward_pass()\n"
             "12    .....    circ->update_vars()\n"
-            "13    .....    circ->reset_iteration()\n" );
+            "13    .....    circ->reset_iteration()\n"
+            "14    .....    introspect_gv(circ)\n" );
 
 //            "4     .....    string lookup in circ_map\n"
 //            "5     .....    output_pin lookup in circ_map\n"
@@ -248,9 +263,87 @@ void dev_menu(void){
 }
 
 
+////
+////
+//void introspect_gv(circuit *circ){ // introspect_gv#
+//
+//    cell *c;
+//    output_pin* op;
+//    char ccolor[] = "ff8080";
+//    char* color;
+//
+//    string this_cell_name;
+//    string con_cell_name;
+//
+//    vector<input_pin*>* connections;
+//    int num_connections;
+//    input_pin* con;
+//
+//    float circuit_loss_gradient;
+//    float cell_loss_gradient;
+//    float temperature;
+//
+//    cout << "digraph babel {" << endl;
+//    cout << "graph [rankdir = \"LR\"];" << endl;
+//
+//    circuit_loss_gradient = (circ->get_loss_cell())->get_loss_gradient();
+//    temperature = 1;
+//    color = rgb_to_string( temperature_to_rgb(temperature) );
+//    cout << "loss [label=\"loss=" << circuit_loss_gradient 
+//         << "\", style=filled, color=\"#" << color << "\"];" << endl;
+//
+////    cout << "loss [label=\"loss\",color=\"" << ccolor << "\"];" << endl;
+//
+////  for each cell in circ:
+////      op = cell->get_f_pin();
+////      temperature = logistic( op->get_loss_gradient() );
+////      color = rgb_to_string( temperature_to_rgb( temperature ));
+////      this_cell_name = cell->get_circ_name();
+////      cout <<  this_cell_name << " [label=\"" << this_cell_name 
+////           << "\", color=#" << color << "];" << endl;
+////
+////      for each connection con in op->connections():
+////          con_cell_name = (con->this_cell()}->get_circ_name();
+////          cout << this_cell_name << " -> " << con_cell_name 
+////               << " [label = \"" << con->get_circ_name() << "\"];" << endl;
+//
+//    vector<cell*>* cells = circ->get_all_cells();
+//    int num_cells = cells->size();
+//
+//    for(int i=0; i<num_cells; i++){
+//
+//        c = (*cells)[i];
+//        op = c->get_f_pin();
+//        this_cell_name = c->get_circ_name();
+//
+//        cell_loss_gradient = c->get_loss_gradient();
+//        temperature = cell_loss_gradient / circuit_loss_gradient;
+//        color = rgb_to_string( temperature_to_rgb(temperature) );
+////    cout << "loss [label=\"loss\", style=filled, color=\"#" << color << "\"];" << endl;
+//
+//        cout << this_cell_name << " [label=\"" << this_cell_name
+//             << "\", style=filled, color=\"#" << color << "\"];" << endl;
+//
+//        connections = op->get_connections();
+//        num_connections = connections->size();
+//
+//        for(int j=0; j<num_connections; j++){
+//            con = (*connections)[j];
+//            con_cell_name = (con->get_this_cell())->get_circ_name();
+//            cout << this_cell_name << " -> " << con_cell_name 
+//                 << " [label = \"" << con->get_circ_name() << "\"];" << endl;
+//        }
+//
+//    }
+//
+//    cout << "}" << endl;
+//
+//}
+
+
 //
 //
-void introspect_gv(circuit *circ){ // introspect_gv#
+void introspect_gv(ofstream& outfile, circuit *circ){ // introspect_gv#
 
     cell *c;
     output_pin* op;
@@ -267,6 +360,9 @@ void introspect_gv(circuit *circ){ // introspect_gv#
     float circuit_loss_gradient;
     float cell_loss_gradient;
     float temperature;
+
+    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+    std::cout.rdbuf(outfile.rdbuf()); //redirect std::cout to out.txt!
 
     cout << "digraph babel {" << endl;
     cout << "graph [rankdir = \"LR\"];" << endl;
@@ -323,7 +419,28 @@ void introspect_gv(circuit *circ){ // introspect_gv#
 
     cout << "}" << endl;
 
+    vector<var_cell*>* var_cells = circ->get_variable_cells();
+
+    int num_variables = var_cells->size();
+//    output_pin* op;
+    string name;
+    float value,gradient;
+
+    for(int i=0; i<num_variables; i++){
+        op = (*var_cells)[i]->get_f_pin();
+        name = (*var_cells)[i]->get_circ_name();
+        value = op->read_value();
+        gradient = op->get_loss_gradient();
+        cout << "// " << name 
+             << " v=" << value 
+             << " g=" << gradient << endl;
+    }
+
+    std::cout.rdbuf(coutbuf); //reset to standard output again
+
 }
+
+
 
 char* rgb_to_string(rgb_triplet* rgb){
     char* buffer = new char[6];

@@ -786,6 +786,11 @@ vector<cell*>* circuit::get_output_cells(void){
     return output_cells;
 }
 
+//
+//
+vector<var_cell*>* circuit::get_variable_cells(void){
+    return variables;
+}
 
 //
 //

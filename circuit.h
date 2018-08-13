@@ -41,6 +41,7 @@ class circuit{
 
         vector<cell*>*      get_all_cells(void);
         vector<cell*>*      get_output_cells(void);
+        vector<var_cell*>*  get_variable_cells(void);
 
         void                designate_output_cell(cell *b);
         loss_cell*          get_loss_cell(void);

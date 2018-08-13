@@ -3,7 +3,99 @@
 use strict;
 use Data::Dumper;
 
+# In the original script, we just spit out equations and let the rest of the
+# toolchain worry about what to do with them. In this script, we have to
+# keep track of the following:
+#
+#   table of variables
+#   table of constants
+#   table of activation cells
+#   table of mux cells
+#   table of wires
+#   table of outputs
+#   generate loss section
+# 
+# ... then once we have processed the entire design, we will emit it to file.
+# Should probable create some kind of struct/tuple to hold everything.
+
+# m2 = XOR(s0,s1) would produce the following code:
+
 my $guid=0x80000000;
+
+my $var_tab = [];
+my $con_tab = [];
+my $act_tab = [];
+my $mux_tab = [];
+my $wir_tab = [];
+my $out_tab = [];
+my $los_tab = [];
+
+my $tot = { # tot = table-of-tables
+    ".guid" => $guid,
+    ".var" => $var_tab,
+    ".con" => $con_tab,
+    ".act" => $act_tab,
+    ".mux" => $mux_tab,
+    ".wir" => $wir_tab,
+    ".out" => $out_tab,
+    ".los" => $los_tab,
+};
+
+sub insert_xor{
+    my ($tot, $in1, $in0, $out) = @_;
+
+# m0, m1, m2
+# c24 c25 c26 c27    0   1   1   0      XOR
+
+    my $m0 = "mux$guid"; $guid++;
+    my $m1 = "mux$guid"; $guid++;
+    my $m2 = "mux$guid"; $guid++;
+    
+    my $mux_tab = $tot->{".mux"};
+    my $wir_tab = $tot->{".wir"};
+
+    push @{$mux_tab}, $m0;
+    push @{$mux_tab}, $m1;
+    push @{$mux_tab}, $m2;
+
+    push @{$wir_tab},
+       ("$in0.f $m0.s",
+        "$in0.f $m1.s",
+        "$in1.f $m2.s",
+
+        "c24.f $m0.x0",
+        "c25.f $m0.x1",
+        "c26.f $m1.x0",
+        "c27.f $m1.x1",
+
+        "$m0.f $m2.x0",
+        "$m1.f $m2.x1");
+
+}
+
+
+die;
+
+#in1                 0   0   1   1
+#in0                 0   1   0   1
+#----------------------------------------------
+# c0  c1  c2  c3     0   0   0   0      FALSE
+# c4  c5  c6  c7     0   0   0   1      AND
+# c8  c9  c10 c11    0   0   1   0
+# c12 c13 c14 c15    0   0   1   1      in1
+# c16 c17 c18 c19    0   1   0   0
+# c20 c21 c22 c23    0   1   0   1      in0
+# c24 c25 c26 c27    0   1   1   0      XOR
+# c28 c29 c30 c31    0   1   1   1      OR
+# c32 c33 c34 c35    1   0   0   0      NOR
+# c36 c37 c38 c39    1   0   0   1      EQ
+# c40 c41 c42 c43    1   0   1   0      !in0
+# c44 c45 c46 c47    1   0   1   1
+# c48 c49 c50 c51    1   1   0   0      !in1
+# c52 c53 c54 c55    1   1   0   1
+# c56 c57 c58 c59    1   1   1   0      NAND
+# c60 c61 c62 c63    1   1   1   1      TRUE
+
 
 print <<'END_QUOTE';
 -- input cell declaration section --
