@@ -3,6 +3,13 @@
 use strict;
 use Data::Dumper;
 
+# TODO
+# `     insert_mux
+#       map wires/buses
+#       expand constants
+#       etc.
+
+
 # In the original script, we just spit out equations and let the rest of the
 # toolchain worry about what to do with them. In this script, we have to
 # keep track of the following:
@@ -64,26 +71,27 @@ my $tot = { # tot = table-of-tables
 
 init_con($tot);
 
-#designate_variables("foo","bar");
-#
-# variable
-#       name
-#       initialization
-#       activation cell name
-
 my $out = insert_fn2($tot,$fn->{"xor"},"foo","bar");
 designate_outputs($tot,$out);
-emit_lgc($tot);
+insert_var($tot,"s0","r2");
+#emit_lgc($tot);
+
+print Dumper($tot->{".var"});
 
 die;
 
-#sub insert_var{
-#    my ($tot, $name, $init) = @_;
-#    my $var_tab = $tot->{".var"};
-#    my $act = "act$tot->{".guid"}"; $tot->{".guid"}++;
-#    $var_tab->{"act"}{$name} = $act;
-#    $var_tab->{"cel"}{$name} = $init;
-#}
+sub insert_var{
+    my ($tot, $name, $init) = @_;
+    my $var_tab = $tot->{".var"};
+    my $act_tab = $tot->{".act"};
+    my $wir_tab = $tot->{".wir"};
+    my $act = "act$tot->{'.guid'}"; $tot->{".guid"}++;
+    $var_tab->{"act"}{$name} = $act;
+    $var_tab->{"cel"}{$name} = $init;
+    push @{$act_tab}, $name;
+    push @{$wir_tab}, "$name.f $act.x";
+    return $act;
+}
 
 sub init_con{
 

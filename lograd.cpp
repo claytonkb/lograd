@@ -47,8 +47,8 @@ void dev_prompt(void){
     int i;
 
     _say("type 0 for menu");
-    _msg("load test.lgc (cmd_code=3) before testing!!!");
-    _msg("XXX: lograd.pl");
+    _msg("XXX: add not_cell");
+    _msg("XXX: continue lograd.pl, see TODOs");
 
 //    ifstream t("test.lgc");
     bool lgc_file_processed;
