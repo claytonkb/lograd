@@ -20,20 +20,41 @@ use Data::Dumper;
 
 # m2 = XOR(s0,s1) would produce the following code:
 
-my $guid=0x80000000;
+my $guid=0x1111;
 
-my $var_tab = [];
+my $var_tab = {};
 my $con_tab = [];
+my $ran_tab = [];
 my $act_tab = [];
 my $mux_tab = [];
 my $wir_tab = [];
 my $out_tab = [];
 my $los_tab = [];
 
+$var_tab->{"cel"} = {};
+$var_tab->{"act"} = {};
+
+my $fn = {
+   "false" =>  0,
+   "and"   =>  4,
+   "in1"   => 12,
+   "in0"   => 20,
+   "xor"   => 24,
+   "or"    => 28,
+   "nor"   => 32,
+   "eq"    => 36,
+   "xnor"  => 36,
+   "!in0"  => 40,
+   "!in1"  => 44,
+   "nand"  => 56,
+   "true"  => 60,
+};
+
 my $tot = { # tot = table-of-tables
     ".guid" => $guid,
     ".var" => $var_tab,
     ".con" => $con_tab,
+    ".ran" => $ran_tab,
     ".act" => $act_tab,
     ".mux" => $mux_tab,
     ".wir" => $wir_tab,
@@ -41,8 +62,79 @@ my $tot = { # tot = table-of-tables
     ".los" => $los_tab,
 };
 
-sub insert_xor{
-    my ($tot, $in1, $in0, $out) = @_;
+init_con($tot);
+
+#designate_variables("foo","bar");
+#
+# variable
+#       name
+#       initialization
+#       activation cell name
+
+my $out = insert_fn2($tot,$fn->{"xor"},"foo","bar");
+designate_outputs($tot,$out);
+emit_lgc($tot);
+
+die;
+
+#sub insert_var{
+#    my ($tot, $name, $init) = @_;
+#    my $var_tab = $tot->{".var"};
+#    my $act = "act$tot->{".guid"}"; $tot->{".guid"}++;
+#    $var_tab->{"act"}{$name} = $act;
+#    $var_tab->{"cel"}{$name} = $init;
+#}
+
+sub init_con{
+
+    # c00 c01 c01 c03    0   0   0   0      FALSE
+    # c04 c05 c06 c07    0   0   0   1      AND
+    # c08 c09 c10 c11    0   0   1   0
+    # c12 c13 c14 c15    0   0   1   1      in1
+    # c16 c17 c18 c19    0   1   0   0
+    # c20 c21 c22 c23    0   1   0   1      in0
+    # c24 c25 c26 c27    0   1   1   0      XOR
+    # c28 c29 c30 c31    0   1   1   1      OR
+    # c32 c33 c34 c35    1   0   0   0      NOR
+    # c36 c37 c38 c39    1   0   0   1      EQ
+    # c40 c41 c42 c43    1   0   1   0      !in0
+    # c44 c45 c46 c47    1   0   1   1
+    # c48 c49 c50 c51    1   1   0   0      !in1
+    # c52 c53 c54 c55    1   1   0   1
+    # c56 c57 c58 c59    1   1   1   0      NAND
+    # c60 c61 c62 c63    1   1   1   1      TRUE
+
+    my $tot = shift;
+
+    push @{ $tot->{".con"} },
+        (
+           "c00 -1", "c01 -1", "c02 -1", "c03 -1",
+           "c04 -1", "c05 -1", "c06 -1", "c07  1",
+           "c08 -1", "c09 -1", "c10  1", "c11 -1",
+           "c12 -1", "c13 -1", "c14  1", "c15  1",
+           "c16 -1", "c17  1", "c18 -1", "c19 -1",
+           "c20 -1", "c21  1", "c22 -1", "c23  1",
+           "c24 -1", "c25  1", "c26  1", "c27 -1",
+           "c28 -1", "c29  1", "c30  1", "c31  1",
+           "c32  1", "c33 -1", "c34 -1", "c35 -1",
+           "c36  1", "c37 -1", "c38 -1", "c39  1",
+           "c40  1", "c41 -1", "c42  1", "c43 -1",
+           "c44  1", "c45 -1", "c46  1", "c47  1",
+           "c48  1", "c49  1", "c50 -1", "c51 -1",
+           "c52  1", "c53  1", "c54 -1", "c55  1",
+           "c56  1", "c57  1", "c58  1", "c59 -1",
+           "c60  1", "c61  1", "c62  1", "c63  1",
+       );
+
+}
+
+
+
+sub insert_fn2{
+
+    my ($tot, $fn, $in1, $in0) = @_;
+
+    #$fn is a number that selects constants from the constant table
 
 # m0, m1, m2
 # c24 c25 c26 c27    0   1   1   0      XOR
@@ -50,31 +142,97 @@ sub insert_xor{
     my $m0 = "mux$guid"; $guid++;
     my $m1 = "mux$guid"; $guid++;
     my $m2 = "mux$guid"; $guid++;
-    
+
     my $mux_tab = $tot->{".mux"};
     my $wir_tab = $tot->{".wir"};
 
-    push @{$mux_tab}, $m0;
-    push @{$mux_tab}, $m1;
-    push @{$mux_tab}, $m2;
+    push @{$mux_tab}, ($m0, $m1, $m2);
 
     push @{$wir_tab},
        ("$in0.f $m0.s",
         "$in0.f $m1.s",
-        "$in1.f $m2.s",
+        "$in1.f $m2.s");
 
-        "c24.f $m0.x0",
-        "c25.f $m0.x1",
-        "c26.f $m1.x0",
-        "c27.f $m1.x1",
+    push @{$wir_tab},
+        "c$fn.f $m0.x0"; $fn++;
 
-        "$m0.f $m2.x0",
+    push @{$wir_tab},
+        "c$fn.f $m0.x1"; $fn++;
+
+    push @{$wir_tab},
+        "c$fn.f $m1.x0"; $fn++;
+
+    push @{$wir_tab},
+        "c$fn.f $m1.x1";
+
+    push @{$wir_tab},
+       ("$m0.f $m2.x0",
         "$m1.f $m2.x1");
+
+    return $m2; #name of the output cell
 
 }
 
+sub designate_outputs{
+    $tot = shift;
+    push @{$tot->{".out"}}, @_;
+}
 
-die;
+sub emit_lgc{
+
+    my $tot = shift;
+
+    $var_tab = $tot->{".var"};
+    $con_tab = $tot->{".con"};
+    $ran_tab = $tot->{".ran"};
+    $act_tab = $tot->{".act"};
+    $mux_tab = $tot->{".mux"};
+    $wir_tab = $tot->{".wir"};
+    $out_tab = $tot->{".out"};
+    $los_tab = $tot->{".los"};
+
+    print ".cel\n";
+
+    print ".var\n";
+#    print "$_\n" for(@{$var_tab});
+    print "\n";
+
+    print ".con\n";
+    print "$_\n" for(@{$con_tab});
+    print "\n";
+
+    print ".ran\n";
+    print "$_\n" for(@{$ran_tab});
+    print "\n";
+
+    print ".act\n";
+    print "$_\n" for(@{$act_tab});
+    print "\n";
+
+    print ".mux\n";
+    print "$_\n" for(@{$mux_tab});
+    print "\n";
+
+    print ".wir\n";
+    print "$_\n" for(@{$wir_tab});
+    print "\n";
+
+    print ".out\n";
+    print "$_\n" for(@{$out_tab});
+    print "\n";
+
+    print ".los\n";
+    print "$_\n" for(@{$los_tab});
+    print "\n";
+
+#    foreach my $section ( qw{ .var .con .ran .act .mux .wir .out .los } ){
+#        print "$section\n";
+#        print "$_\n" for(@{$tot->{$section}});
+#        print "\n";
+#    }
+
+}
+
 
 #in1                 0   0   1   1
 #in0                 0   1   0   1
@@ -96,65 +254,6 @@ die;
 # c56 c57 c58 c59    1   1   1   0      NAND
 # c60 c61 c62 c63    1   1   1   1      TRUE
 
-
-print <<'END_QUOTE';
--- input cell declaration section --
-.cel
-
-.var
-s0 1
-s1 0
-
--- Note: initialization can be 0, 1 or r --
-
--- constant cell declaration section --
-.con
-c0 -1
-c1 1
-c2 1
-c3 -1
-
--- random cell declaration section --
--- .ran --
--- r0 1 --
-
--- activation cells declaration section --
-.act
-a0
-a1
-
--- soft-mux cells declaration section --
-.mux
-m0
-m1
-m2
-
--- wires connection section --
-.wir
-s0.f a0.x
-s1.f a1.x
-
-a0.f m0.s
-a0.f m1.s
-a1.f m2.s
-
--- r0.f m0.x0 --
-c0.f m0.x0
-c1.f m0.x1
-c2.f m1.x0
-c3.f m1.x1
-
-m0.f m2.x0
-m1.f m2.x1
-
-.out
-m2
-
--- loss section --
-.los
-
-m2.f 1
-END_QUOTE
 
 
 #my $k = [ qw( stuff ) ];
@@ -201,7 +300,6 @@ END_QUOTE
 #        expand_bus("${g0}",  [0..31]),
 #        expand_bus("${g1}",  [0..31]),
 #        expand_bus("${g2}",  [0..31]));
-#
 
 
 #
