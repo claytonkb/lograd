@@ -4,10 +4,19 @@ use strict;
 use Data::Dumper;
 
 # TODO
-# `     insert_mux
-#       map wires/buses
+#       map_pins("s", ".f", [0..31], "a", ".x", [0..31])
+#
+#       map_mux("m0",
+#               "s", ".f", [0..31], 
+#               "A", [0..31],
+#               "B", [0..31]);
+#
+#       map_fn2("xor",
+#               "in0", [0..31],
+#               "in1", [0..31],
+#               "out", [0..31]); # returns base_name of the XOR gate slices
+#
 #       expand constants
-#       etc.
 
 
 # In the original script, we just spit out equations and let the rest of the
@@ -38,8 +47,8 @@ my $wir_tab = [];
 my $out_tab = [];
 my $los_tab = [];
 
-$var_tab->{"cel"} = {};
 $var_tab->{"act"} = {};
+$var_tab->{"ini"} = {};
 
 my $fn = {
    "false" =>  0,
@@ -74,82 +83,92 @@ init_con($tot);
 my $out = insert_fn2($tot,$fn->{"xor"},"foo","bar");
 designate_outputs($tot,$out);
 insert_var($tot,"s0","r2");
-#emit_lgc($tot);
+emit_lgc($tot);
 
-print Dumper($tot->{".var"});
+#print Dumper($tot->{".var"});
 
 die;
 
+
 sub insert_var{
+
     my ($tot, $name, $init) = @_;
+
     my $var_tab = $tot->{".var"};
     my $act_tab = $tot->{".act"};
     my $wir_tab = $tot->{".wir"};
-    my $act = "act$tot->{'.guid'}"; $tot->{".guid"}++;
+
+    my $act = "act$tot->{'.guid'}"; $tot->{".guid"}+=1;
+
     $var_tab->{"act"}{$name} = $act;
-    $var_tab->{"cel"}{$name} = $init;
-    push @{$act_tab}, $name;
+    $var_tab->{"ini"}{$name} = $init;
+
+    push @{$act_tab}, $act;
     push @{$wir_tab}, "$name.f $act.x";
+
     return $act;
+
 }
 
-sub init_con{
 
-    # c00 c01 c01 c03    0   0   0   0      FALSE
-    # c04 c05 c06 c07    0   0   0   1      AND
-    # c08 c09 c10 c11    0   0   1   0
-    # c12 c13 c14 c15    0   0   1   1      in1
-    # c16 c17 c18 c19    0   1   0   0
-    # c20 c21 c22 c23    0   1   0   1      in0
-    # c24 c25 c26 c27    0   1   1   0      XOR
-    # c28 c29 c30 c31    0   1   1   1      OR
-    # c32 c33 c34 c35    1   0   0   0      NOR
-    # c36 c37 c38 c39    1   0   0   1      EQ
-    # c40 c41 c42 c43    1   0   1   0      !in0
-    # c44 c45 c46 c47    1   0   1   1
-    # c48 c49 c50 c51    1   1   0   0      !in1
-    # c52 c53 c54 c55    1   1   0   1
-    # c56 c57 c58 c59    1   1   1   0      NAND
-    # c60 c61 c62 c63    1   1   1   1      TRUE
+sub init_con{
 
     my $tot = shift;
 
     push @{ $tot->{".con"} },
-        (
-           "c00 -1", "c01 -1", "c02 -1", "c03 -1",
-           "c04 -1", "c05 -1", "c06 -1", "c07  1",
-           "c08 -1", "c09 -1", "c10  1", "c11 -1",
-           "c12 -1", "c13 -1", "c14  1", "c15  1",
-           "c16 -1", "c17  1", "c18 -1", "c19 -1",
-           "c20 -1", "c21  1", "c22 -1", "c23  1",
-           "c24 -1", "c25  1", "c26  1", "c27 -1",
-           "c28 -1", "c29  1", "c30  1", "c31  1",
-           "c32  1", "c33 -1", "c34 -1", "c35 -1",
-           "c36  1", "c37 -1", "c38 -1", "c39  1",
-           "c40  1", "c41 -1", "c42  1", "c43 -1",
-           "c44  1", "c45 -1", "c46  1", "c47  1",
-           "c48  1", "c49  1", "c50 -1", "c51 -1",
-           "c52  1", "c53  1", "c54 -1", "c55  1",
-           "c56  1", "c57  1", "c58  1", "c59 -1",
-           "c60  1", "c61  1", "c62  1", "c63  1",
-       );
+          ("c00 -1", "c01 -1", "c02 -1", "c03 -1",    #  0  0  0  0  FALSE
+           "c04 -1", "c05 -1", "c06 -1", "c07  1",    #  0  0  0  1  AND
+           "c08 -1", "c09 -1", "c10  1", "c11 -1",    #  0  0  1  0
+           "c12 -1", "c13 -1", "c14  1", "c15  1",    #  0  0  1  1  in1
+           "c16 -1", "c17  1", "c18 -1", "c19 -1",    #  0  1  0  0
+           "c20 -1", "c21  1", "c22 -1", "c23  1",    #  0  1  0  1  in0
+           "c24 -1", "c25  1", "c26  1", "c27 -1",    #  0  1  1  0  XOR
+           "c28 -1", "c29  1", "c30  1", "c31  1",    #  0  1  1  1  OR
+           "c32  1", "c33 -1", "c34 -1", "c35 -1",    #  1  0  0  0  NOR
+           "c36  1", "c37 -1", "c38 -1", "c39  1",    #  1  0  0  1  EQ
+           "c40  1", "c41 -1", "c42  1", "c43 -1",    #  1  0  1  0  !in0
+           "c44  1", "c45 -1", "c46  1", "c47  1",    #  1  0  1  1
+           "c48  1", "c49  1", "c50 -1", "c51 -1",    #  1  1  0  0  !in1
+           "c52  1", "c53  1", "c54 -1", "c55  1",    #  1  1  0  1
+           "c56  1", "c57  1", "c58  1", "c59 -1",    #  1  1  1  0  NAND
+           "c60  1", "c61  1", "c62  1", "c63  1");   #  1  1  1  1  TRUE
 
 }
 
+#map_pins("s", ".f", [0..31], "a", ".x", [0..31])
+sub map_pins{
+    my ($tot, $src_cell, $src_pin, $src_indices,
+              $dest_cell, $dest_pins, $dest_indices) = @_;
+
+
+
+}
+
+
+sub insert_mux{
+
+    my ($tot, $s_in, $x0_in, $x1_in) = @_;
+    my $mux = "mux$tot->{'.guid'}"; $tot->{".guid"}++;
+
+    my $wir_tab = $tot->{".wir"};
+
+    push @{$wir_tab},
+       ("$s_in  $mux.s",
+        "$x0_in $mux.x0",
+        "$x1_in $mux.x1");
+
+    return $mux;
+
+}
 
 
 sub insert_fn2{
 
     my ($tot, $fn, $in1, $in0) = @_;
 
-    #$fn is a number that selects constants from the constant table
-
-# m0, m1, m2
-# c24 c25 c26 c27    0   1   1   0      XOR
-
-    my $m0 = "mux$guid"; $guid++;
-    my $m1 = "mux$guid"; $guid++;
-    my $m2 = "mux$guid"; $guid++;
+    my $m0 = "mux$tot->{'.guid'}"; $tot->{".guid"}++;
+    my $m1 = "mux$tot->{'.guid'}"; $tot->{".guid"}++;
+    my $m2 = "mux$tot->{'.guid'}"; $tot->{".guid"}++;
 
     my $mux_tab = $tot->{".mux"};
     my $wir_tab = $tot->{".wir"};
@@ -202,7 +221,7 @@ sub emit_lgc{
     print ".cel\n";
 
     print ".var\n";
-#    print "$_\n" for(@{$var_tab});
+    print "$_ $var_tab->{'ini'}{$_}\n" for (keys %{$var_tab->{"ini"}});
     print "\n";
 
     print ".con\n";
@@ -240,29 +259,6 @@ sub emit_lgc{
 #    }
 
 }
-
-
-#in1                 0   0   1   1
-#in0                 0   1   0   1
-#----------------------------------------------
-# c0  c1  c2  c3     0   0   0   0      FALSE
-# c4  c5  c6  c7     0   0   0   1      AND
-# c8  c9  c10 c11    0   0   1   0
-# c12 c13 c14 c15    0   0   1   1      in1
-# c16 c17 c18 c19    0   1   0   0
-# c20 c21 c22 c23    0   1   0   1      in0
-# c24 c25 c26 c27    0   1   1   0      XOR
-# c28 c29 c30 c31    0   1   1   1      OR
-# c32 c33 c34 c35    1   0   0   0      NOR
-# c36 c37 c38 c39    1   0   0   1      EQ
-# c40 c41 c42 c43    1   0   1   0      !in0
-# c44 c45 c46 c47    1   0   1   1
-# c48 c49 c50 c51    1   1   0   0      !in1
-# c52 c53 c54 c55    1   1   0   1
-# c56 c57 c58 c59    1   1   1   0      NAND
-# c60 c61 c62 c63    1   1   1   1      TRUE
-
-
 
 #my $k = [ qw( stuff ) ];
 #

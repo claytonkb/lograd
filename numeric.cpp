@@ -236,6 +236,8 @@ float mean_sq_error(vector<float> *target, vector<float> *actual){
         accumulator += (diff*diff);
     }
 
+    accumulator /= 2;
+
     return (accumulator / (float)num_terms);
 
 }
@@ -251,6 +253,8 @@ float mean_sq_error(vector<float> *diffs){
     for(int i=0; i<num_terms; i++){
         accumulator += ((*diffs)[i] * (*diffs)[i]);
     }
+
+    accumulator /= 2;
 
     return (accumulator / (float)num_terms);
 
