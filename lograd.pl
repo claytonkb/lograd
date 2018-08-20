@@ -603,5 +603,58 @@ sub map_shift_right{ #shifts a bus right-wise and returns expanded wires
 
 
 
+## mulex.pl
+#
+#use strict;
+#
+##static inline uint32_t rotl(const uint32_t x, int k) {
+##	return (x << k) | (x >> (32 - k));
+##}
+#
+#
+##static uint32_t s[4];
+#
+#my $time = time();
+#print dec2hex($time) . "\n";
+#
+##our $s = [($time^0xdeadbeef)<<32,$time^0xfeedcafedeaffade];
+#our $s = [$time+0xdeadbeef,$time+0xbabeface];
+#
+##^0x0123456789abcdef
+##^0xfedcba9876543210
+##print dec2hex( rotl( 0xdeadbeefbabeface, 4 ) );
+#
+#xoroshiro128() for (1..10);
+##print dec2hex( xoroshiro128() ) . "\n";
+#print dec2hex( $s->[0] ) . "\n";
+#
+#sub dec2hex { return sprintf("%x",shift) }
+#
+#sub xoroshiro128{
+#
+#    our $s;
+#
+#    my $s0 = $s->[0];
+#    my $s1 = $s->[1];
+#
+#    my $result = $s0+$s1;
+#
+#	$s1 ^= $s0;
+#	$s->[0] = rotl($s0, 24) ^ $s1 ^ ($s1 << 16);
+#	$s->[1] = rotl($s1, 37);
+#
+##	return $result;
+#
+#}
+#
+#sub rotl{
+#    my ($x, $k) = @_;
+#    return ($x << $k) | ($x >> (64 - $k));
+#}
+
+
+
+
+
 
 
