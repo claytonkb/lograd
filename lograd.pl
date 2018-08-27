@@ -4,20 +4,6 @@ use strict;
 use Data::Dumper;
 
 # TODO
-#       map_pins("s", ".f", [0..31], "a", ".x", [0..31])
-#
-#       map_mux("m0",
-#               "s", ".f", [0..31], 
-#               "A", [0..31],
-#               "B", [0..31]);
-#
-#       map_fn2("xor",
-#               "in0", [0..31],
-#               "in1", [0..31],
-#               "out", [0..31]); # returns base_name of the XOR gate slices
-#
-#       expand constants
-
 
 # In the original script, we just spit out equations and let the rest of the
 # toolchain worry about what to do with them. In this script, we have to
@@ -80,12 +66,16 @@ my $tot = { # tot = table-of-tables
 
 init_con($tot);
 
-my $out = insert_fn2($tot,$fn->{"xor"},"foo","bar");
+my $act0 = insert_var($tot,"s0","l2");
+my $act1 = insert_var($tot,"s1","l2");
+#my $out = insert_fn2($tot,$fn->{"xor"},"s0","s1");
+my $out = insert_fn2($tot,$fn->{"and"},$act0,$act1);
 designate_outputs($tot,$out);
-insert_var($tot,"s0","r2");
+push @{$tot->{".los"}}, "$out.f 1";
 emit_lgc($tot);
 
-#print Dumper($tot->{".var"});
+#my $foo = expand_constant(32,"deadbeef");
+#print Dumper($foo);
 
 die;
 
@@ -135,12 +125,69 @@ sub init_con{
 
 }
 
+
+# takes a constant (up to 32 bits wide) and expands it to [-1,1] literal bus
+#
+sub expand_constant{
+
+    my $width = shift;
+    my $const = hex(shift);
+    my $result;
+
+    for(my $i=0; $i<$width; $i++){
+        my $mask = (1<<$i);
+        if($const & $mask){
+            push @{$result}, 1;
+        }
+        else{
+            push @{$result}, -1;
+        }
+    }
+
+    return $result;
+
+}
+
+
 #map_pins("s", ".f", [0..31], "a", ".x", [0..31])
 sub map_pins{
-    my ($tot, $src_cell, $src_pin, $src_indices,
-              $dest_cell, $dest_pins, $dest_indices) = @_;
+
+    my ($tot, $src_cell,  $src_pin,   $src_indices,
+              $dest_cell, $dest_pin,  $dest_indices) = @_;
+
+    my $wir_tab = $tot->{".wir"};
+
+    for(0..$#{$dest_indices}){
+        push @{$wir_tab}, 
+            "${src_cell}$src_indices->[$_].$src_pin ${dest_cell}$dest_indices->[$_].$dest_pin";
+    }
+
+}
 
 
+#       map_mux("m0", [0..31],
+#               "s", ".f", [0..31], 
+#               "A", ".f", [0..31],
+#               "B", ".f", [0..31]);
+#
+sub map_mux{
+
+    my ($tot, 
+        $mux_cell, $mux_indices,
+        $s_cell,  $s_pin,  $s_indices,
+        $x0_cell, $x0_pin, $x0_indices,
+        $x1_cell, $x1_pin, $x1_indices) = @_;
+
+    my $wir_tab = $tot->{".wir"};
+
+    map_pins($tot, $s_cell,   $s_pin, $s_indices,
+                   $mux_cell, "s",    $mux_indices);
+
+    map_pins($tot, $x0_cell,  $x0_pin, $x0_indices,
+                   $mux_cell, "x0",    $mux_indices);
+
+    map_pins($tot, $x1_cell,  $x1_pin, $x1_indices,
+                   $mux_cell, "x1",    $mux_indices);
 
 }
 
@@ -164,7 +211,7 @@ sub insert_mux{
 
 sub insert_fn2{
 
-    my ($tot, $fn, $in1, $in0) = @_;
+    my ($tot, $fn, $in0, $in1) = @_;
 
     my $m0 = "mux$tot->{'.guid'}"; $tot->{".guid"}++;
     my $m1 = "mux$tot->{'.guid'}"; $tot->{".guid"}++;
@@ -304,59 +351,6 @@ sub emit_lgc{
 #        expand_bus("${g0}",  [0..31]),
 #        expand_bus("${g1}",  [0..31]),
 #        expand_bus("${g2}",  [0..31]));
-
-
-#
-#
-sub map_declare{ # declare input variables
-
-    my $wires = shift;
-    for(@{$wires}){
-        print "$_;\n";
-    }
-
-}
-
-
-#
-#
-sub map_assign_eq{
-
-    my $left = shift;
-    my $right = shift;
-    my $length = ($#{$left} < $#{$right}) ? $#{$left} : $#{$right};
-
-    for(my $i=0; $i<=$length; $i++){
-        my $left_wire = shift @{$left};
-        my $right_wire = shift @{$right};
-        print "ASSIGN EQUIV($left_wire, $right_wire);\n";
-        
-    }
-
-}
-
-
-#
-#
-sub expand_constant{ # takes a constant (up to 32 bits wide) and expands it to [TF] literal bus
-
-    my $width = shift;
-    my $const = hex(shift);
-    my $result;
-
-    for(my $i=0; $i<$width; $i++){
-        my $mask = (1<<$i);
-        if($const & $mask){
-            push @{$result}, "T";
-        }
-        else{
-            push @{$result}, "F";
-        }
-    }
-
-    return $result;
-
-}
 
 
 #

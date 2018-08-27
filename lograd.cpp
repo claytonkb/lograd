@@ -49,7 +49,8 @@ void dev_prompt(void){
     _say("type 0 for menu");
     _msg("XXX: add not_cell");
     _msg("XXX: fix introspect_gv() to OVERWRITE, not append");
-    _msg("XXX: continue lograd.pl, see TODOs");
+    _msg("                            show values of s.f and act.f cell pins");
+    _msg("                            suppress constants with no connected pins");
 
 //    ifstream t("test.lgc");
     bool lgc_file_processed;
