@@ -48,9 +48,6 @@ void dev_prompt(void){
 
     _say("type 0 for menu");
     _msg("XXX: add not_cell");
-    _msg("XXX: fix introspect_gv() to OVERWRITE, not append");
-    _msg("                            show values of s.f and act.f cell pins");
-    _msg("                            suppress constants with no connected pins");
 
 //    ifstream t("test.lgc");
     bool lgc_file_processed;
@@ -265,84 +262,6 @@ void dev_menu(void){
 }
 
 
-////
-////
-//void introspect_gv(circuit *circ){ // introspect_gv#
-//
-//    cell *c;
-//    output_pin* op;
-//    char ccolor[] = "ff8080";
-//    char* color;
-//
-//    string this_cell_name;
-//    string con_cell_name;
-//
-//    vector<input_pin*>* connections;
-//    int num_connections;
-//    input_pin* con;
-//
-//    float circuit_loss_gradient;
-//    float cell_loss_gradient;
-//    float temperature;
-//
-//    cout << "digraph babel {" << endl;
-//    cout << "graph [rankdir = \"LR\"];" << endl;
-//
-//    circuit_loss_gradient = (circ->get_loss_cell())->get_loss_gradient();
-//    temperature = 1;
-//    color = rgb_to_string( temperature_to_rgb(temperature) );
-//    cout << "loss [label=\"loss=" << circuit_loss_gradient 
-//         << "\", style=filled, color=\"#" << color << "\"];" << endl;
-//
-////    cout << "loss [label=\"loss\",color=\"" << ccolor << "\"];" << endl;
-//
-////  for each cell in circ:
-////      op = cell->get_f_pin();
-////      temperature = logistic( op->get_loss_gradient() );
-////      color = rgb_to_string( temperature_to_rgb( temperature ));
-////      this_cell_name = cell->get_circ_name();
-////      cout <<  this_cell_name << " [label=\"" << this_cell_name 
-////           << "\", color=#" << color << "];" << endl;
-////
-////      for each connection con in op->connections():
-////          con_cell_name = (con->this_cell()}->get_circ_name();
-////          cout << this_cell_name << " -> " << con_cell_name 
-////               << " [label = \"" << con->get_circ_name() << "\"];" << endl;
-//
-//    vector<cell*>* cells = circ->get_all_cells();
-//    int num_cells = cells->size();
-//
-//    for(int i=0; i<num_cells; i++){
-//
-//        c = (*cells)[i];
-//        op = c->get_f_pin();
-//        this_cell_name = c->get_circ_name();
-//
-//        cell_loss_gradient = c->get_loss_gradient();
-//        temperature = cell_loss_gradient / circuit_loss_gradient;
-//        color = rgb_to_string( temperature_to_rgb(temperature) );
-////    cout << "loss [label=\"loss\", style=filled, color=\"#" << color << "\"];" << endl;
-//
-//        cout << this_cell_name << " [label=\"" << this_cell_name
-//             << "\", style=filled, color=\"#" << color << "\"];" << endl;
-//
-//        connections = op->get_connections();
-//        num_connections = connections->size();
-//
-//        for(int j=0; j<num_connections; j++){
-//            con = (*connections)[j];
-//            con_cell_name = (con->get_this_cell())->get_circ_name();
-//            cout << this_cell_name << " -> " << con_cell_name 
-//                 << " [label = \"" << con->get_circ_name() << "\"];" << endl;
-//        }
-//
-//    }
-//
-//    cout << "}" << endl;
-//
-//}
-
-
 //
 //
 void introspect_gv(ofstream& outfile, circuit *circ){ // introspect_gv#
@@ -354,6 +273,7 @@ void introspect_gv(ofstream& outfile, circuit *circ){ // introspect_gv#
 
     string this_cell_name;
     string con_cell_name;
+    cell_type this_cell_type;
 
     vector<input_pin*>* connections;
     int num_connections;
@@ -397,18 +317,32 @@ void introspect_gv(ofstream& outfile, circuit *circ){ // introspect_gv#
 
         c = (*cells)[i];
         op = c->get_f_pin();
+
+        connections = op->get_connections();
+        num_connections = connections->size();
+
+        if(num_connections == 0)
+            continue;
+
         this_cell_name = c->get_circ_name();
+        this_cell_type = c->get_type();
 
         cell_loss_gradient = c->get_loss_gradient();
         temperature = cell_loss_gradient / circuit_loss_gradient;
         color = rgb_to_string( temperature_to_rgb(temperature) );
 //    cout << "loss [label=\"loss\", style=filled, color=\"#" << color << "\"];" << endl;
 
-        cout << this_cell_name << " [label=\"" << this_cell_name
-             << "\", style=filled, color=\"#" << color << "\"];" << endl;
-
-        connections = op->get_connections();
-        num_connections = connections->size();
+        if(this_cell_type == VAR_CELL 
+                || this_cell_type == ACT_CELL
+                || this_cell_type == CONST_CELL ){
+            cout << this_cell_name << " [label=\"" << this_cell_name
+                 << "=" << op->read_value()
+                 << "\", style=filled, color=\"#" << color << "\"];" << endl;
+        }
+        else{
+            cout << this_cell_name << " [label=\"" << this_cell_name
+                 << "\", style=filled, color=\"#" << color << "\"];" << endl;
+        }
 
         for(int j=0; j<num_connections; j++){
             con = (*connections)[j];
