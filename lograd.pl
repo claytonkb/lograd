@@ -5,6 +5,10 @@ use Data::Dumper;
 
 # TODO
 
+# Set up map functions to accept a set of labels (array refs):
+#   map_mux($tot, $s_pins, $x0_pins, $x1_pins, $f_pins)
+#
+
 # In the original script, we just spit out equations and let the rest of the
 # toolchain worry about what to do with them. In this script, we have to
 # keep track of the following:
@@ -54,30 +58,99 @@ my $fn = {
 
 my $tot = { # tot = table-of-tables
     ".guid" => $guid,
-    ".var" => $var_tab,
-    ".con" => $con_tab,
-    ".ran" => $ran_tab,
-    ".act" => $act_tab,
-    ".mux" => $mux_tab,
-    ".wir" => $wir_tab,
-    ".out" => $out_tab,
-    ".los" => $los_tab,
+    ".var"  => $var_tab,
+    ".con"  => $con_tab,
+    ".ran"  => $ran_tab,
+    ".act"  => $act_tab,
+    ".mux"  => $mux_tab,
+    ".wir"  => $wir_tab,
+    ".out"  => $out_tab,
+    ".los"  => $los_tab,
 };
 
-init_con($tot);
+
+#init_con($tot);
+#
+#my $act0 = insert_var($tot,"s0","l2");
+#my $act1 = insert_var($tot,"s1","l2");
+##my $out = insert_fn2($tot,$fn->{"xor"},"s0","s1");
+#my $out = insert_fn2($tot,$fn->{"and"},$act0,$act1);
+#designate_outputs($tot,$out);
+#push @{$tot->{".los"}}, "$out.f 1";
+#emit_lgc($tot);
+
+###########################################################################3
+
+#init_con($tot);
 
 my $act0 = insert_var($tot,"s0","l2");
 my $act1 = insert_var($tot,"s1","l2");
-#my $out = insert_fn2($tot,$fn->{"xor"},"s0","s1");
-my $out = insert_fn2($tot,$fn->{"and"},$act0,$act1);
-designate_outputs($tot,$out);
-push @{$tot->{".los"}}, "$out.f 1";
+my $act2 = insert_var($tot,"s2","l2");
+
+my $act3 = insert_var($tot,"s3","l2");
+my $act4 = insert_var($tot,"s4","l2");
+my $act5 = insert_var($tot,"s5","l2");
+
+map_mux($tot, "m", [0..3],
+       $act0, "f", [0..3], 
+       $act1, "f", [0..3],
+       $act2, "f", [0..3]);
+
+my $out0 = insert_mux($tot, "$act3.f", "m0.f", "m1.f");
+my $out1 = insert_mux($tot, "$act4.f", "m2.f", "m3.f");
+my $out2 = insert_mux($tot, "$act5.f", "$out0.f", "$out1.f");
+
+designate_outputs($tot,$out2);
+push @{$tot->{".los"}}, "$out2.f 1";
 emit_lgc($tot);
 
 #my $foo = expand_constant(32,"deadbeef");
 #print Dumper($foo);
-
 die;
+
+
+#
+#
+sub map_insert_var{
+
+    my ($tot, $name, $init, ) = @_;
+
+    my $var_tab = $tot->{".var"};
+    my $act_tab = $tot->{".act"};
+    my $wir_tab = $tot->{".wir"};
+
+    my $act = "act$tot->{'.guid'}"; $tot->{".guid"}+=1;
+
+    $var_tab->{"act"}{$name} = $act;
+    $var_tab->{"ini"}{$name} = $init;
+
+    push @{$act_tab}, $act;
+    push @{$wir_tab}, "$name.f $act.x";
+
+    return $act;
+
+}
+
+
+#
+#
+sub map_fn2{ # map two-argument function...
+
+    my $fn_name;
+    my ($c0, $c1, $c2, $c3) = @_;
+
+    my $dest_wires = shift;
+    my $srcA_wires = shift;
+    my $srcB_wires = shift;
+
+    for(@{$dest_wires}){
+        my $srcA_wire = shift @{$srcA_wires};
+        my $srcB_wire = shift @{$srcB_wires};
+        print "$_ := $fn_name($srcA_wire, $srcB_wire);\n";
+    }
+
+}
+
 
 
 sub insert_var{
@@ -106,22 +179,24 @@ sub init_con{
     my $tot = shift;
 
     push @{ $tot->{".con"} },
-          ("c0  -1", "c1  -1", "c2  -1", "c3  -1",    #  0  0  0  0  FALSE
+      (
+#           "c0  -1", "c1  -1", "c2  -1", "c3  -1",    #  0  0  0  0  FALSE
            "c4  -1", "c5  -1", "c6  -1", "c7   1",    #  0  0  0  1  AND
-           "c8  -1", "c9  -1", "c10  1", "c11 -1",    #  0  0  1  0
-           "c12 -1", "c13 -1", "c14  1", "c15  1",    #  0  0  1  1  in1
-           "c16 -1", "c17  1", "c18 -1", "c19 -1",    #  0  1  0  0
-           "c20 -1", "c21  1", "c22 -1", "c23  1",    #  0  1  0  1  in0
-           "c24 -1", "c25  1", "c26  1", "c27 -1",    #  0  1  1  0  XOR
-           "c28 -1", "c29  1", "c30  1", "c31  1",    #  0  1  1  1  OR
-           "c32  1", "c33 -1", "c34 -1", "c35 -1",    #  1  0  0  0  NOR
-           "c36  1", "c37 -1", "c38 -1", "c39  1",    #  1  0  0  1  EQ
-           "c40  1", "c41 -1", "c42  1", "c43 -1",    #  1  0  1  0  !in0
-           "c44  1", "c45 -1", "c46  1", "c47  1",    #  1  0  1  1
-           "c48  1", "c49  1", "c50 -1", "c51 -1",    #  1  1  0  0  !in1
-           "c52  1", "c53  1", "c54 -1", "c55  1",    #  1  1  0  1
-           "c56  1", "c57  1", "c58  1", "c59 -1",    #  1  1  1  0  NAND
-           "c60  1", "c61  1", "c62  1", "c63  1");   #  1  1  1  1  TRUE
+#           "c8  -1", "c9  -1", "c10  1", "c11 -1",    #  0  0  1  0
+#           "c12 -1", "c13 -1", "c14  1", "c15  1",    #  0  0  1  1  in1
+#           "c16 -1", "c17  1", "c18 -1", "c19 -1",    #  0  1  0  0
+#           "c20 -1", "c21  1", "c22 -1", "c23  1",    #  0  1  0  1  in0
+#           "c24 -1", "c25  1", "c26  1", "c27 -1",    #  0  1  1  0  XOR
+#           "c28 -1", "c29  1", "c30  1", "c31  1",    #  0  1  1  1  OR
+#           "c32  1", "c33 -1", "c34 -1", "c35 -1",    #  1  0  0  0  NOR
+#           "c36  1", "c37 -1", "c38 -1", "c39  1",    #  1  0  0  1  EQ
+#           "c40  1", "c41 -1", "c42  1", "c43 -1",    #  1  0  1  0  !in0
+#           "c44  1", "c45 -1", "c46  1", "c47  1",    #  1  0  1  1
+#           "c48  1", "c49  1", "c50 -1", "c51 -1",    #  1  1  0  0  !in1
+#           "c52  1", "c53  1", "c54 -1", "c55  1",    #  1  1  0  1
+#           "c56  1", "c57  1", "c58  1", "c59 -1",    #  1  1  1  0  NAND
+#           "c60  1", "c61  1", "c62  1", "c63  1",    #  1  1  1  1  TRUE
+       );
 
 }
 
@@ -265,7 +340,7 @@ sub emit_lgc{
     $out_tab = $tot->{".out"};
     $los_tab = $tot->{".los"};
 
-    print ".cel\n";
+    print ".cel\n\n";
 
     print ".var\n";
     print "$_ $var_tab->{'ini'}{$_}\n" for (keys %{$var_tab->{"ini"}});
@@ -397,23 +472,6 @@ sub map_fn1{ # map single-argument function (NOT)
 
 }
 
-
-#
-#
-sub map_fn2{ # map two-argument function...
-
-    my $fn_name = shift;
-    my $dest_wires = shift;
-    my $srcA_wires = shift;
-    my $srcB_wires = shift;
-
-    for(@{$dest_wires}){
-        my $srcA_wire = shift @{$srcA_wires};
-        my $srcB_wire = shift @{$srcB_wires};
-        print "$_ := $fn_name($srcA_wire, $srcB_wire);\n";
-    }
-
-}
 
 
 #
