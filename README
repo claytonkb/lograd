@@ -1,0 +1,9 @@
+Lograd
+------
+
+Logic, now with gradients!
+
+Takes an .lgc file as input and generates a Boolean circuit with float-valued
+wires, suitable for circuit-solving via gradient descent.
+
+
