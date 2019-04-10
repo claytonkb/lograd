@@ -137,9 +137,14 @@ void dev_prompt(void){
                 break;
 
             case 4:
-                gamma *= 0.9;
-                _df(gamma);
-                circ->iterate(1,gamma);
+                cmd_code_str = strtok(NULL, " ");
+                if(cmd_code_str == NULL){ _say("no argument given"); continue; }
+                cmd_code = atoi(cmd_code_str);
+                for(i=0; i<cmd_code;i++){
+                    gamma *= 0.9;
+                    _df(gamma);
+                    circ->iterate(1,gamma);
+                }
                 break;
 
             case 5:

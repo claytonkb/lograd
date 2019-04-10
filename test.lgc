@@ -1,59 +1,58 @@
+-- input cell declaration section --
 .cel
 
 .var
-s0 l2
-s5 l2
-s1 l2
-s2 l2
-s4 l2
-s3 l2
+s0 r2
+s1 r2
 
+-- Note: initialization can be 0, 1 or r --
+
+-- constant cell declaration section --
 .con
+c0 0
+c1 1
+c2 1
+c3 0
 
-.ran
+-- random cell declaration section --
+-- .ran --
+-- r0 1 --
 
+-- activation cells declaration section --
 .act
-act4369
-act4370
-act4371
-act4372
-act4373
-act4374
+a0
+a1
 
+-- soft-mux cells declaration section --
 .mux
+m0
+m1
+m2
 
+-- wires connection section --
 .wir
-s0.f act4369.x
-s1.f act4370.x
-s2.f act4371.x
-s3.f act4372.x
-s4.f act4373.x
-s5.f act4374.x
-act43690.f m0.s
-act43691.f m1.s
-act43692.f m2.s
-act43693.f m3.s
-act43700.f m0.x0
-act43701.f m1.x0
-act43702.f m2.x0
-act43703.f m3.x0
-act43710.f m0.x1
-act43711.f m1.x1
-act43712.f m2.x1
-act43713.f m3.x1
-act4372.f  mux4375.s
-m0.f mux4375.x0
-m1.f mux4375.x1
-act4373.f  mux4376.s
-m2.f mux4376.x0
-m3.f mux4376.x1
-act4374.f  mux4377.s
-mux4375.f mux4377.x0
-mux4376.f mux4377.x1
+s0.f a0.x
+s1.f a1.x
+
+a0.f m0.s
+a0.f m1.s
+a1.f m2.s
+
+-- r0.f m0.x0 --
+c0.f m0.x0
+c1.f m0.x1
+c2.f m1.x0
+c3.f m1.x1
+
+m0.f m2.x0
+m1.f m2.x1
 
 .out
-mux4377
+m2
 
+-- loss section --
 .los
-mux4377.f 1
+
+m2.f 1
+
 

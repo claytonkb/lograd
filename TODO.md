@@ -1,5 +1,8 @@
 Lograd
 ======
 
-Set up make-flow...
+Set up make.pl
+Build gamma decay into circuit
+Set up tracing
+
 
